@@ -70,18 +70,17 @@ echo "Select your reference (.fa) and read (.fastq) files; include path."
 read -p "Reference : " ref
 read -p "Read : " reads
 clear
-echo "Select a name for your build, sortedbam, and cov results."
+echo "Select a name for your build and cov results."
 read -p "BuildName :" build
-read -p "SortedBamOutput(.sorted) : " sortedbam
-read -p "SortedBamInput(.sorted.bam) : " sortedbamsorted
 read -p "ResultsName : " CovResults
 cmd="sort"
 echo $ref $build | bowtie2-build $ref $build
 if [ -r $ref ]; then
 echo $build $reads | bowtie2 -x $build -D 0 -R 0 -N 0 --no-mixed --no-discordant $reads --threads 16 | samtools view -bS - > $build.bam
-echo  $sortedbam $cmd $build | samtools $cmd $build.bam $sortedbam -@ 16
-echo $sortedbamsorted $CovResults | samtools depth $sortedbamsorted | awk '{sum+=$3; sumsq+=$3*$3} END { print "Average = ",sum/NR; print "Stdev = ",sqrt(sumsq/NR - (sum/NR)**2)}' > $CovResults 
+echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
+echo $build $CovResults | samtools depth $build.sorted.bam | awk '{sum+=$3; sumsq+=$3*$3} END { print "Average = ",sum/NR; print "Stdev = ",sqrt(sumsq/NR - (sum/NR)**2)}' > $CovResults 
 echo $build | rm $build.bam
+echo "Process complete. Please verify '$CovResults'."
 exit 0
 else 
 echo "Outputs missing and/or truncated, please verify inputs"
@@ -141,21 +140,19 @@ echo "Select your reference (.fa) and read (.fastq) files; include path."
 read -p "Reference : " ref
 read -p "Read : " reads
 clear
-echo "Select a name for your build, sortedbam, vcf, cov & vcf results."
+echo "Select a name for your build, vcf, cov & vcf results."
 read -p "BuildName : " build
-read -p "SortedBamOutput(.sorted) : " sortedbam
-read -p "SortedBamInput(.sorted.bam) : " sortedbamsorted
 read -p "VcfName :" vcf
 read -p "CovResultsName : " CovResults
 read -p "VcfStatsName : " VcfResults
 cmd="sort"
 echo $ref $build | bowtie2-build $ref $build
 if [ -r $ref ]; then
-echo $build $reads $bam | bowtie2 -x $build $reads --threads 16 | samtools view -bS - > $build.bam
-echo  $sortedbam $cmd $build | samtools $cmd $build.bam $sortedbam -@ 16
-echo $sortedbamsorted $CovResults | samtools depth $sortedbamsorted | awk '{sum+=$3; sumsq+=$3*$3} END { print "Average = ",sum/NR; print "Stdev = ",sqrt(sumsq/NR - (sum/NR)**2)}' > $CovResults 
-echo $build | rm product.bam
-echo $ref $sortedbamsorted | samtools mpileup -uf $ref $sortedbamsorted | bcftools call -c > $vcf
+echo $build $reads | bowtie2 -x $build $reads --threads 16 | samtools view -bS - > $build.bam
+echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
+echo $build $CovResults | samtools depth $build.sorted.bam | awk '{sum+=$3; sumsq+=$3*$3} END { print "Average = ",sum/NR; print "Stdev = ",sqrt(sumsq/NR - (sum/NR)**2)}' > $CovResults 
+echo $build | rm $build.bam
+echo $ref $build | samtools mpileup -uf $ref $build.sorted.bam | bcftools call -c > $vcf
 echo $vcf $VcfResults | bcftools stats $vcf > $VcfResults
 exit 0
 else 
@@ -171,8 +168,6 @@ read -p "Read_2 : " read_2
 clear
 echo "Select a name for your build, sortedbam, vcf, cov & vcf results."
 read -p "BuildName :" build
-read -p "SortedBamOutput(.sorted) : " sortedbam
-read -p "SortedBamInput(.sorted.bam) :" sortedbamsorted
 read -p "VcfName :" vcf
 read -p "CovResultsName : " CovResults
 read -p "VcfStatsName : " VcfResults
@@ -180,10 +175,10 @@ cmd="sort"
 echo $ref $build | bowtie2-build $ref $build
 if [ -r $ref ]; then
 echo $build $read_1 $read_2 | bowtie2 -x $build -1 $read_1 -2 $read_2 --threads 16 | samtools view -bS - > $build.bam
-echo  $sortedbam $cmd $build | samtools $cmd $build.bam $sortedbam -@ 16
-echo $sortedbamsorted $CovResults | samtools depth $sortedbamsorted | awk '{sum+=$3; sumsq+=$3*$3} END { print "Average = ",sum/NR; print "Stdev = ",sqrt(sumsq/NR - (sum/NR)**2)}' > $CovResults 
+echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
+echo $build $CovResults | samtools depth $build.sorted.bam | awk '{sum+=$3; sumsq+=$3*$3} END { print "Average = ",sum/NR; print "Stdev = ",sqrt(sumsq/NR - (sum/NR)**2)}' > $CovResults 
 echo $build | rm $build.bam
-echo $ref $sortedbam | samtools mpileup -uf $ref $sortedbamsorted | bcftools call -c > $vcf
+echo $ref $build | samtools mpileup -uf $ref $build.sorted.bam | bcftools call -c > $vcf
 echo $vcf $VcfResults | bcftools stats $vcf > $VcfResults
 exit 0
 else 
