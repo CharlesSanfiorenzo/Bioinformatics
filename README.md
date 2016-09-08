@@ -39,7 +39,6 @@ If you'd like to make your own changes ensure your PR is made against the 'dev' 
 - [x] Calculate Proteome Size from a Proteomic or Transcriptomic Genbank file.
 - [x] Count number of bases for individual fasta or multifasta.
 - [x] Added a ToolBox to facilitate the lives of non-savvy terminal users (Read Documentation)
-- [x] Limit the step to farm specific area for pokestops
 - [x] SNP analysis based on output from Bowtie2 and Bwa-mem alignments coupled with SAMtools and GATK (w/ Piccard Tools) cross analysis.
 - [ ] PSMC Population Plot Analysis
 
