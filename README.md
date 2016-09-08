@@ -1,5 +1,3 @@
-# Bioinformatics: A science of many disciplines.
-
 # MultiTool - A handy set of tools for any bioinformatics-related lab!
 
 
