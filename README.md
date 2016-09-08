@@ -44,8 +44,8 @@ If you'd like to make your own changes ensure your PR is made against the 'dev' 
 
 
 ## Authors
-- [Charles Sanfiorenzo Cruz]() 
-- [Jenelys Ruiz Ortiz]() 
+- [Charles Sanfiorenzo Cruz]() - charles.sanfiorenzo@upr.edu
+- [Jenelys Ruiz Ortiz]() - jenelys.ruiz@upr.edu
 
 
 ## Contributors
@@ -53,4 +53,4 @@ If you'd like to make your own changes ensure your PR is made against the 'dev' 
   
 
 ## Disclaimer
-This program takes advantage of a lot of software tools debeloped by many academic institutions. Make sure to cite their use in accordance to their policies!
+This program takes advantage of a lot of software tools developed by many academic institutions. Make sure to cite their use in accordance to their policies!
