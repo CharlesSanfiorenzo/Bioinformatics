@@ -1,11 +1,14 @@
 #!/bin/bash
 
-#Dependencies: Bowtie2, SAMtools, BBTools, gb2tab, standard unix, python-2.7, perl, 
+#Dependencies: Bowtie2, SAMtools, BBTools, gb2tab, standard unix, python-2.7, perl 
 
 PS3='Enter your choice (use number): '
-options=("Extract" "GeneCopies" "FindGene" "ReadQuality" "ProteomeSize" "SNPCalling" "Help" "Quit")
+options=("Extract" "GeneCopies" "FindGene" "ReadQuality" "ProteomeSize" "BaseCounter" "SNPCalling" "ToolBox" "Help" "Quit")
 suboptions=("SingleRead" "ReadPair")
 suboptionspsize=("RnaGBK" "ProteinGBK")
+genesoptions=("Exclusive" "Inclusive")
+toolbox=("FileDeleter" "Concatenator")
+ 
 
 select opt in "${options[@]}"
 do
@@ -61,7 +64,6 @@ exit 1
 fi
             ;;
         "GeneCopies")
-clear
 select subopt in "${suboptions[@]}"
 do
     case $subopt in
@@ -69,14 +71,23 @@ do
 echo "Select your reference (.fa) and read (.fastq) files; include path."
 read -p "Reference : " ref
 read -p "Read : " reads
-clear
 echo "Select a name for your build and cov results."
-read -p "BuildName :" build
+read -p "BuildName : " build
 read -p "ResultsName : " CovResults
+echo "Note: If previous values for coverage resulted null, choose 'Yes'"
+read -r -p "Do you wish to allow mixed mapping? [y/N] : " response
 cmd="sort"
+if [ -r $ref ] || [[ $response =~ ^([yY][eE][sS]|[yY])$ ]] ; then
 echo $ref $build | bowtie2-build $ref $build
-if [ -r $ref ]; then
-echo $build $reads | bowtie2 -x $build -D 0 -R 0 -N 0 --no-mixed --no-discordant $reads --threads 16 | samtools view -bS - > $build.bam
+echo $build $reads | bowtie2 -x $build -D 0 -R 0 -N 0 --no-1mm-upfront --no-discordant $reads --threads 16 | samtools view -bS - > $build.bam
+echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
+echo $build $CovResults | samtools depth $build.sorted.bam | awk '{sum+=$3; sumsq+=$3*$3} END { print "Average = ",sum/NR; print "Stdev = ",sqrt(sumsq/NR - (sum/NR)**2)}' > $CovResults 
+echo $build | rm $build.bam
+echo "Process complete. Please verify '$CovResults'."
+exit 0
+elif [ -r $ref ] || [[ $response =~ ^([nN][oO]|[nN])$ ]] ; then
+echo $ref $build | bowtie2-build $ref $build
+echo $build $reads | bowtie2 -x $build -D 0 -R 0 -N 0 --no-1mm-upfront --no-mixed --no-discordant $reads --threads 16 | samtools view -bS - > $build.bam
 echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
 echo $build $CovResults | samtools depth $build.sorted.bam | awk '{sum+=$3; sumsq+=$3*$3} END { print "Average = ",sum/NR; print "Stdev = ",sqrt(sumsq/NR - (sum/NR)**2)}' > $CovResults 
 echo $build | rm $build.bam
@@ -92,14 +103,23 @@ echo "Select your reference (.fa) and read (.fastq) files; include path."
 read -p "Reference : " ref
 read -p "Read_1 : " read_1
 read -p "Read_2 : " read_2
-clear
-echo "Select a name for your build, sortedbam, and cov results."
-read -p "BuildName :" build
+echo "Select a name for your build and cov results."
+read -p "BuildName : " build
 read -p "ResultsName : " CovResults
+echo "Note: If previous values for coverage resulted null, choose 'Yes'"
+read -r -p "Do you wish to allow mixed mapping? [y/N] : " response
 cmd="sort"
+if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]] ; then
 echo $ref $build | bowtie2-build $ref $build
-if [ -r $ref ]; then
-echo $build $read_1 $read_2 | bowtie2 -x $build -D 0 -R 0 -N 0 --no-mixed --no-discordant -1 $read_1 -2 $read_2 --threads 16 | samtools view -bS - > $build.bam
+echo $build $read_1 $read_2 | bowtie2 -x $build -D 0 -R 0 -N 0 --no-1mm-upfront --no-discordant -1 $read_1 -2 $read_2 --threads 16 | samtools view -bS - > $build.bam
+echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
+echo $build $CovResults | samtools depth $build.sorted.bam | awk '{sum+=$3; sumsq+=$3*$3} END { print "Average = ",sum/NR; print "Stdev = ",sqrt(sumsq/NR - (sum/NR)**2)}' > $CovResults 
+echo $build | rm $build.bam
+echo "Process complete. Please verify '$CovResults'."
+exit 0
+elif [[ $response =~ ^([nN][oO]|[nN])$ ]] ; then
+echo $ref $build | bowtie2-build $ref $build
+echo $build $read_1 $read_2 | bowtie2 -x $build -D 0 -R 0 -N 0 --no-1mm-upfront --no-mixed --no-discordant -1 $read_1 -2 $read_2 --threads 16 | samtools view -bS - > $build.bam
 echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
 echo $build $CovResults | samtools depth $build.sorted.bam | awk '{sum+=$3; sumsq+=$3*$3} END { print "Average = ",sum/NR; print "Stdev = ",sqrt(sumsq/NR - (sum/NR)**2)}' > $CovResults 
 echo $build | rm $build.bam
@@ -108,7 +128,7 @@ exit 0
 else 
 echo "Outputs missing and/or truncated, please verify inputs"
 exit 1
-fi
+fi 
 ;;
               *) echo invalid option;;
         
@@ -116,6 +136,10 @@ esac
 done
            ;;
     "FindGene")
+select genesopt in "${genesoptions[@]}"
+do
+    case $genesopt in
+        "Exclusive")
 echo "Select your multifasta and desired gene to be extracted"
 read -p "FastaFile : " multifasta
 read -p "GeneName : " genename
@@ -130,8 +154,28 @@ echo "Input is missing and/or truncated"
 exit 1
 fi
            ;;
- "ReadQuality")
+        "Inclusive")
+echo "Select your multifasta and desired gene to be extracted"
+read -p "FastaFile : " multifasta
+read -p "GeneName : " genename
 clear
+echo "Processing..."
+if [ -r $multifasta ]; then
+echo $multifasta $genename | awk 'BEGIN {RS=">"} /'$genename'/ {print ">"$0}' $multifasta | sed '/^$/d' > $genename.fa
+echo "Process complete. Output can be found in '$genename.fa'."
+exit 0
+else
+echo "Input is missing and/or truncated"
+exit 1
+fi
+;;
+*) echo invalid option;;
+        
+esac
+done
+           ;;
+
+ "ReadQuality")
 select subopt in "${suboptions[@]}"
 do
     case $subopt in
@@ -139,10 +183,9 @@ do
 echo "Select your reference (.fa) and read (.fastq) files; include path."
 read -p "Reference : " ref
 read -p "Read : " reads
-clear
 echo "Select a name for your build, vcf, cov & vcf results."
 read -p "BuildName : " build
-read -p "VcfName :" vcf
+read -p "VcfName : " vcf
 read -p "CovResultsName : " CovResults
 read -p "VcfStatsName : " VcfResults
 cmd="sort"
@@ -165,10 +208,9 @@ echo "Select your reference (.fa) and read (.fastq) files; include path."
 read -p "Reference : " ref
 read -p "Read_1 : " read_1
 read -p "Read_2 : " read_2
-clear
-echo "Select a name for your build, sortedbam, vcf, cov & vcf results."
-read -p "BuildName :" build
-read -p "VcfName :" vcf
+echo "Select a name for your build, vcf, cov & vcf results."
+read -p "BuildName : " build
+read -p "VcfName : " vcf
 read -p "CovResultsName : " CovResults
 read -p "VcfStatsName : " VcfResults
 cmd="sort"
@@ -308,8 +350,64 @@ fi
 esac
 done
 ;;
+  "BaseCounter")
+clear
+echo "Type in the name of the fasta file"
+read -p "Fasta file : " fasta
+grep -v '^>' $fasta | wc -c | sed -re ' :restart ; s/([0-9])([0-9]{3})($|[^0-9])/\1,\2\3/ ; t restart ' | awk '{print $1" Bases"}'
+echo "Process completed"
+exit 1
+esac
+done
+;;
   "SNPCalling")
-            ;;        
+            ;;
+  "ToolBox")
+clear
+select tools in "${toolbox[@]}"
+do
+    case $tools in
+  "FileDeleter")
+echo "This feature will delete all files within a directory with a given 
+extension"
+echo "Specify extension; include dot. Example: '.fa'"
+read -p "Extension : " ext
+read -r -p "This will delete all files with '$ext'. Are you sure? [y/N] : " response2
+
+if [[ $response2 =~ ^([yY][eE][sS]|[yY])$ ]] ; then
+echo "..."
+echo $ext | find . -name "*$ext" -exec rm -rf {} \;
+echo "All files with '$ext' extension have been deleted. 
+      Verify directory content."
+exit 0
+elif [[ $response2 =~ ^([nN][oO]|[nN])$ ]] ; then
+echo "Exiting..."
+exit 1
+
+else
+echo "invalid option"
+
+fi
+;;
+  "Concatenator")
+echo "This feature will concatenate all files within a directory with a given 
+extension"
+echo "Specify extension; include dot. Example: '.fa'"
+read -p "Extension : " ext
+read -p "Output : " catname
+
+echo $ext | find . -name "*$ext" -exec cat {} \; > $catname
+
+echo "All files with '$ext' extension have been concatenated. 
+      Verify '$catname'."
+exit 0
+;;
+*) echo invalid option;;
+
+
+esac
+done
+;;        
         "Help")
             echo "
             ---------------------------Help Manual------------------------------
@@ -331,11 +429,12 @@ done
             II. Gene Copy Number Analysis
              -1) Run this script w/ Extract option.
              -2) Extract genes of interest from output (LongestGenome.fa).
-             -3) Parse 'LongestGenome.fa' to extract desired genes.
+             -3) Parse 'LongestGenome.fa' to extract desired genes using 
+                 Find Gene.
              -4) Map reads to individual genes, and then to all ORF's using 
                  GeneCopies option. You should end up with a coverage result 
-                 for the individual gene in question, and for all of the ORFs 
-                 (Ref:LongestGenome.fa).
+                 for the individual gene in question (Ref: GeneName.fa), and 
+                 for all of the ORFs (Ref: LongestGenome.fa).
              -5) Divide the coverage value belonging to each individual gene 
                  between the coverage value for all ORFs (gene/AllORFs). This
                  is an estimate value for the copy number of that gene.
@@ -346,6 +445,17 @@ done
              -1) Run this script w/ Extract option.
              -2) When prompted, use the fasta output from the Extract option as
                  input; specify the gene of interest.
+              Options:
+               -Exclusive: Stringent; only extracts genes with name specified.
+                Example
+                    Sample= TP53_1, TP53_2, TP53_3, TP53_4, TP53RT2_1, TP52_1
+                    Gene specified= TP53
+                    Results= TP53_1
+               -Inclusive: Extracts genes with similar names.
+                Example
+                    Sample= TP53_1, TP53_2, TP53_3, TP53_4, TP53RT2_1, TP52_1
+                    Gene specified= TP53
+                    Results= TP53_1, TP53_2, TP53_3, TP53_4, TP53RT2_1, TP52_1
 
              IV. Read Quality Test
              Using fastq files & reference fasta, this option will output
@@ -365,22 +475,34 @@ done
                   all RNA or protein sequences. 
               -2) Verify output: 'ProteomeSize.txt'.
 
+            VI. Base Counter
+               Outputs amount of bases in individual or multifasta files.
+
             VI. SNP Calling
 
            VII. PSMC Analysis
 
             File Naming Protocol (Examples):
                Reference: TP53.fa
-               BuildName: TP53bowtie2
-               SortedBamName(1rst): TP53.sorted
-               SortedBamName(2nd): TP53.sorted.bam
+               BuildName: TP53
                ResultsName: TP53Cov.txt
                etc.
+               Other outputs will be named in accordance to the build.
+
+         VIII. Tool Box
+              A collection of tools for frequent tasks. Meant for
+              bigginers in the terminal!
+          
 
                               More will be added soon!
             
-            Authors: Charles J. Sanfiorenzo Cruz 
-                     Jenelys Ruiz Ortiz
+           -Authors: 
+            Charles J. Sanfiorenzo Cruz 
+            Jenelys Ruiz Ortiz
+
+           -Collaborators:
+
+                                                                 Version 1.2 
                   " 
             ;;
         "Quit")
