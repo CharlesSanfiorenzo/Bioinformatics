@@ -24,8 +24,8 @@ If you need any help please contact one of the authors via email.
 ###[Bugs / Issues](https://github.com/CharlesSanfiorenzo/Bioinformatics/issues)
 If you discover a bug in the script, please [create a new issue](https://github.com/CharlesSanfiorenzo/Bioinformatics/issues/new).
 
-###[Feature Requests]()
-If you have a feature you would like added, please [create a new request]().
+###[Feature Requests](https://github.com/CharlesSanfiorenzo/Bioinformatics/labels/Feature%20Request)
+If you have a feature you would like added, please [create a new request](https://github.com/CharlesSanfiorenzo/Bioinformatics/labels/Feature%20Request/new).
 
 
 ###[Pull Requests]()
