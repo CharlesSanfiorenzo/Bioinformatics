@@ -1,7 +1,7 @@
 #Help Manual
             Note: Try to run this script in a screen!
 
-	    ## I. Gene Extraction
+	       I. Gene Extraction
               ****************************************************************
               This feature makes use of NCBI's Genbank annotated format files
               (GBKs) to produce a multifasta file containing all ORF's
@@ -14,7 +14,7 @@
                 'LongestGenome.fa', containing all ORF's for all protein coding
                  genes.  
 
-      ## II. Gene Copy Number Analysis
+          II. Gene Copy Number Analysis
              -1) Run this script w/ Extract option.
              -2) Extract genes of interest from output (LongestGenome.fa).
              -3) Parse 'LongestGenome.fa' to extract desired genes using 
@@ -27,7 +27,7 @@
                  between the coverage value for all ORFs (gene/AllORFs). This
                  is an estimate value for the copy number of that gene.
 
-      ## III. Find Gene
+         III. Find Gene
               This feature extracts a specific gene header and sequence from a
               mutifasta file.
              -1) Run this script w/ Extract option.
@@ -45,7 +45,7 @@
                     Gene specified= TP53
                     Results= TP53_1, TP53_2, TP53_3, TP53_4, TP53RT2_1, TP52_1
 
-      ## IV. Read Quality Test
+         IV. Read Quality Test
              Using fastq files & reference fasta, this option will output
              alignment rate, average coverage, and TS/TV ratio for select
              organism.
@@ -54,7 +54,7 @@
               b) Average Coverage > 12
               c) TS/TV ratio higher than, or close to 2.1
             
-      ##  V. Proteome Size
+          V. Proteome Size
                This feature will annotate the amount of aminoacids or codons in 
                an organism's proteome by using sequences stored in Genbank
                files. It will also count the headers (amount of protein coding
@@ -63,12 +63,12 @@
                   all RNA or protein sequences. 
               -2) Verify output: 'ProteomeSize.txt'.
 
-      ##  VI. Base Counter
+          VI. Base Counter
                Outputs amount of bases in individual or multifasta files.
 
-      ##   VI. SNP Calling
+           VI. SNP Calling
 
-      ##  VII. PSMC Analysis
+         VII. PSMC Analysis
 
             File Naming Protocol (Examples):
                Reference: TP53.fa
@@ -77,17 +77,17 @@
                etc.
                Other outputs will be named in accordance to the build.
 
-     ## VIII. Tool Box
+        VIII. Tool Box
               A collection of tools for frequent tasks. Meant for
               bigginers in the terminal!
           
 
                               More will be added soon!
             
-      ## Authors 
+         Authors 
             Charles J. Sanfiorenzo Cruz 
             Jenelys Ruiz Ortiz
 
-      ## Collaborators
+         Collaborators
 
-      ## Version 1.2
+         Version 1.2
