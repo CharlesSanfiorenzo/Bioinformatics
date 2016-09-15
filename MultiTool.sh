@@ -354,11 +354,14 @@ done
 clear
 echo "Type in the name of the fasta file"
 read -p "Fasta file : " fasta
+if [ -r $fasta ]; then
 grep -v '^>' $fasta | wc -c | sed -re ' :restart ; s/([0-9])([0-9]{3})($|[^0-9])/\1,\2\3/ ; t restart ' | awk '{print $1" Bases"}'
 echo "Process completed"
+exit 0
+else 
+echo "Input is missing or is in an incorrect format."
 exit 1
-esac
-done
+fi
 ;;
   "SNPCalling")
             ;;
