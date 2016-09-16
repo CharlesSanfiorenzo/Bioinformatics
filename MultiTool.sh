@@ -146,7 +146,7 @@ read -p "GeneName : " genename
 clear
 echo "Processing..."
 if [ -r $multifasta ]; then
-echo $multifasta $genename | awk 'BEGIN {RS=">"} /'$genename'/ {print ">"$0}' $multifasta | awk -v RS='>' 'NR>1 {gsub("\n", ";", $0); sub(";$", "", $0); print ">"$0}' | head -n 1 | tr ';' '\n' | sed '/^$/d' > $genename.fa
+echo $multifasta $genename | awk 'BEGIN {RS=">"} /'^$genename'/ {print ">"$0}' $multifasta | awk -v RS='>' 'NR>1 {gsub("\n", ";", $0); sub(";$", "", $0); print ">"$0}' | head -n 1 | tr ';' '\n' | sed '/^$/d' > $genename.fa
 echo "Process complete. Output can be found in '$genename.fa'."
 exit 0
 else
@@ -183,20 +183,32 @@ do
 echo "Select your reference (.fa) and read (.fastq) files; include path."
 read -p "Reference : " ref
 read -p "Read : " reads
-echo "Select a name for your build, vcf, cov & vcf results."
+echo "Select a name for your build, coverage & vcf results."
 read -p "BuildName : " build
-read -p "VcfName : " vcf
 read -p "CovResultsName : " CovResults
-read -p "VcfStatsName : " VcfResults
+read -p "VcfResultsName : " VcfResults
+read -r -p "Do you wish to keep files for downstream analysis? [y/N] : " response
+if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]] && [ -r $ref ] ; then
 cmd="sort"
 echo $ref $build | bowtie2-build $ref $build
-if [ -r $ref ]; then
+echo $build $reads | bowtie2 -x $build $reads --threads 16 -S $build.sam > AlignmentStats.txt
+echo $build | samtools view -bS $build.sam > $build.bam
+echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
+echo $build $CovResults | samtools depth $build.sorted.bam | awk '{sum+=$3; sumsq+=$3*$3} END { print "Average = ",sum/NR; print "Stdev = ",sqrt(sumsq/NR - (sum/NR)**2)}' > CoverageStats.txt 
+cat AlignmentStats.txt CoverageStats.txt > $CovResults
+rm AlignmentStats.txt CoverageStats.txt
+echo $ref $build | samtools mpileup -uf $ref $build.sorted.bam | bcftools call -c > $build.vcf
+echo $build $VcfResults | bcftools stats $build.vcf > $VcfResults
+exit 0
+elif [[ $response =~ ^([nN][oO]|[nN])$ ]] && [ -r $ref ] ; then
+cmd="sort"
+echo $ref $build | bowtie2-build $ref $build
 echo $build $reads | bowtie2 -x $build $reads --threads 16 | samtools view -bS - > $build.bam
 echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
 echo $build $CovResults | samtools depth $build.sorted.bam | awk '{sum+=$3; sumsq+=$3*$3} END { print "Average = ",sum/NR; print "Stdev = ",sqrt(sumsq/NR - (sum/NR)**2)}' > $CovResults 
 echo $build | rm $build.bam
-echo $ref $build | samtools mpileup -uf $ref $build.sorted.bam | bcftools call -c > $vcf
-echo $vcf $VcfResults | bcftools stats $vcf > $VcfResults
+echo $ref $build | samtools mpileup -uf $ref $build.sorted.bam | bcftools call -c > $build.vcf
+echo $build $VcfResults | bcftools stats $build.vcf > $VcfResults
 exit 0
 else 
 echo "Outputs missing and/or truncated, please verify inputs"
@@ -208,20 +220,31 @@ echo "Select your reference (.fa) and read (.fastq) files; include path."
 read -p "Reference : " ref
 read -p "Read_1 : " read_1
 read -p "Read_2 : " read_2
-echo "Select a name for your build, vcf, cov & vcf results."
+echo "Select a name for your build, coverage & vcf results."
 read -p "BuildName : " build
-read -p "VcfName : " vcf
 read -p "CovResultsName : " CovResults
-read -p "VcfStatsName : " VcfResults
+read -p "VcfResultsName : " VcfResults
+read -r -p "Do you wish to keep files for downstream analysis? [y/N] : " response
+if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]] && [ -r $ref ] ; then
 cmd="sort"
 echo $ref $build | bowtie2-build $ref $build
-if [ -r $ref ]; then
+echo $build $read_1 $read_2 | bowtie2 -x $build -1 $read_1 -2 $read_2 --threads 16 -S $build.sam > AlignmentStats.txt
+echo $build | samtools view -bS $build.sam > $build.bam
+echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
+echo $build $CovResults | samtools depth $build.sorted.bam | awk '{sum+=$3; sumsq+=$3*$3} END { print "Average = ",sum/NR; print "Stdev = ",sqrt(sumsq/NR - (sum/NR)**2)}' > CoverageStats.txt
+cat AlignmentStats.txt CoverageStats.txt > $CovResults
+rm AlignmentStats.txt CoverageStats.txt
+echo $ref $build | samtools mpileup -uf $ref $build.sorted.bam | bcftools call -c > $build.vcf
+echo $build $VcfResults | bcftools stats $build.vcf > $VcfResults
+exit 0
+elif [[ $response =~ ^([nN][oO]|[nN])$ ]] && [ -r $ref ] ; then
+cmd="sort"
+echo $ref $build | bowtie2-build $ref $build
 echo $build $read_1 $read_2 | bowtie2 -x $build -1 $read_1 -2 $read_2 --threads 16 | samtools view -bS - > $build.bam
 echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
 echo $build $CovResults | samtools depth $build.sorted.bam | awk '{sum+=$3; sumsq+=$3*$3} END { print "Average = ",sum/NR; print "Stdev = ",sqrt(sumsq/NR - (sum/NR)**2)}' > $CovResults 
-echo $build | rm $build.bam
-echo $ref $build | samtools mpileup -uf $ref $build.sorted.bam | bcftools call -c > $vcf
-echo $vcf $VcfResults | bcftools stats $vcf > $VcfResults
+echo $ref $build | samtools mpileup -uf $ref $build.sorted.bam | bcftools call -c > $build.vcf
+echo $build $VcfResults | bcftools stats $build.vcf > $VcfResults
 exit 0
 else 
 echo "Outputs missing and/or truncated, please verify inputs"
