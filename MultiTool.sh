@@ -8,14 +8,63 @@ suboptions=("SingleRead" "ReadPair")
 suboptionspsize=("RnaGBK" "ProteinGBK")
 genesoptions=("Exclusive" "Inclusive")
 toolbox=("FileDeleter" "Concatenator")
+extractoptions=("All Variants" "Longest Variant")
  
 
 select opt in "${options[@]}"
 do
     case $opt in
         "Extract")
+select extropt in "${extractoptions[@]}"
+do
+    case $extropt in
+
+   "All Variants")
 echo "Type in the name of the GBK file"
 read -p "GBK file : " gbk
+read -p "Output : " output
+echo "Processing..."
+if [ -r $gbk ]; then
+python ../../../../opt/gb2tab-1.2.1/gb2tab.py -f CDS --genename --block-chars=[E] < $gbk | cut -f1,2 > Genomebaby.txt
+
+cat << EOF > pyscript.py
+#!/usr/bin/python
+
+import fileinput
+
+for line in fileinput.input():
+	tokens = line.split("\t")
+	name = tokens[0]
+	seq = tokens[1]
+
+	print ">%s\n%s" % (name, seq)
+
+EOF
+
+chmod +x pyscript.py
+
+./pyscript.py Genomebaby.txt > Genome.txt
+
+rm pyscript.py
+
+. ../../../../opt/bbmap/reformat.sh in=Genome.txt out=Genome.fa ow
+perl -p -e 's/^(>.*)$/$1\_/g' Genome.fa > Genomev2.fa
+. ../../../../opt/bbmap/reformat.sh in=Genomev2.fa out=Genomev3.fa uniquenames ow
+sed 's,__,%,g' Genomev3.fa | sed 's,_,+,g' | sed 's,+,_1,g' | sed 's,%,_,g' > $output
+echo "Process completed; please verify the outputs. Output can be found in 
+      '$output'."
+rm Genome.txt Genome.fa Genomev2.fa Genomev3.fa Genomebaby.txt
+exit 0
+else 
+echo "Input is missing or is in an incorrect format."
+exit 1
+fi
+;;
+
+ "Longest Variant")
+echo "Type in the name of the GBK file"
+read -p "GBK file : " gbk
+read -p "Output : " output
 echo "Processing..."
 if [ -r $gbk ]; then
 python ../../../../opt/gb2tab-1.2.1/gb2tab.py -f CDS --genename --block-chars=[E] < $gbk | cut -f1,2 > Genomebaby.txt
@@ -53,9 +102,9 @@ sort -t '	' -k1,1 -u -s |\
 sed 's/	/_/' |\
 cut -f 1,2 |\
 tr "\t" "\n"  |\
-fold -w 80 > LongestGenome.fa
+fold -w 80 > $output
 echo "Process completed; please verify the outputs. Output can be found in 
-      'LongestGenome.fa'."
+      '$output'."
 rm Genome.txt Genome.fa Genomev2.fa Genomev3.fa TiddyGenome.fa Genomebaby.txt
 exit 0
 else 
@@ -63,6 +112,11 @@ echo "Input is missing or is in an incorrect format."
 exit 1
 fi
             ;;
+*) echo invalid option;;
+
+esac 
+done
+;;
         "GeneCopies")
 select subopt in "${suboptions[@]}"
 do
@@ -264,7 +318,8 @@ do
         "RnaGBK")
 echo "Type in the name of the GBK file"
 read -p "GBK file : " gbk
-if [ -r $gbk ]; then
+read -r -p "Do you wish to evaluate longest variant per gene only? [y/N] : " response
+if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]] && [ -r $gbk ] ; then
 echo "Processing..."
 python ../../../../opt/gb2tab-1.2.1/gb2tab.py -f CDS --genename --block-chars=[E] < $gbk | cut -f1,2 > Genomebaby.txt
 
@@ -309,8 +364,47 @@ grep -v '^>' LongestProtein.fa | wc -c | awk '{print $1/3}' |  awk '{printf "%2.
 cat GeneCount.txt AminoacidCount.txt > ProteomeSize.txt
 echo "Process completed; please verify the outputs."
 echo "Proteome size can be found in 'ProteomeSize.txt'"
-rm Genome.txt Genome.fa Genomev2.fa Genomev3.fa TiddyGenome.fa GeneCount.txt AminoacidCount.txt Genomebaby.txt
+rm Genome.txt Genome.fa Genomev2.fa Genomev3.fa TiddyGenome.fa GeneCount.txt AminoacidCount.txt Genomebaby.txt LongestProtein.fa
 exit 0
+elif [[ $response =~ ^([nN][oO]|[nN])$ ]] && [ -r $gbk ] ; then
+echo "Processing..."
+python ../../../../opt/gb2tab-1.2.1/gb2tab.py -f CDS --genename --block-chars=[E] < $gbk | cut -f1,2 > Genomebaby.txt
+
+cat << EOF > pyscript.py
+#!/usr/bin/python
+
+import fileinput
+
+for line in fileinput.input():
+	tokens = line.split("\t")
+	name = tokens[0]
+	seq = tokens[1]
+
+	print ">%s\n%s" % (name, seq)
+
+EOF
+
+chmod +x pyscript.py
+
+./pyscript.py Genomebaby.txt > Genome.txt
+
+rm pyscript.py
+
+
+
+. ../../../../opt/bbmap/reformat.sh in=Genome.txt out=Genome.fa ow
+perl -p -e 's/^(>.*)$/$1\_/g' Genome.fa > Genomev2.fa
+. ../../../../opt/bbmap/reformat.sh in=Genomev2.fa out=Genomev3.fa uniquenames ow
+sed 's,__,%,g' Genomev3.fa | sed 's,_,+,g' | sed 's,+,_1,g' | sed 's,%,_,g' > TiddyGenome.fa
+
+grep '^>' TiddyGenome.fa | wc -l | sed -re ' :restart ; s/([0-9])([0-9]{3})($|[^0-9])/\1,\2\3/ ; t restart ' | awk '{print $1" Genes"}' > GeneCount.txt
+grep -v '^>' TiddyGenome.fa | wc -c | awk '{print $1/3}' |  awk '{printf "%2.1f\n",$0}' | sed -re ' :restart ; s/([0-9])([0-9]{3})($|[^0-9])/\1,\2\3/ ; t restart ' | awk '{print $1" Aminoacids"}' > AminoacidCount.txt
+cat GeneCount.txt AminoacidCount.txt > ProteomeSize.txt
+echo "Process completed; please verify the outputs."
+echo "Proteome size can be found in 'ProteomeSize.txt'"
+rm Genome.txt Genome.fa Genomev2.fa Genomev3.fa GeneCount.txt AminoacidCount.txt Genomebaby.txt TiddyGenome.fa
+exit 0
+
 else 
 echo "Input is missing or is in an incorrect format."
 exit 1
@@ -319,7 +413,8 @@ fi
         "ProteinGBK")
 echo "Type in the name of the GBK file"
 read -p "GBK file : " gbk
-if [ -r $gbk ]; then
+read -r -p "Do you wish to evaluate longest variant per gene only? [y/N] : " response
+if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]] && [ -r $gbk ] ; then
 echo "Processing..."
 python ../../../../opt/gb2tab-1.2.1/gb2tab.py -f CDS --genename --block-chars=[E] < $gbk | cut -f1,2 > Genomebaby.txt
 
@@ -362,8 +457,43 @@ grep -v '^>' LongestProtein.fa | wc -c | sed -re ' :restart ; s/([0-9])([0-9]{3}
 cat GeneCount.txt AminoacidCount.txt > ProteomeSize.txt
 echo "Process completed; please verify the outputs."
 echo "Proteome size can be found in 'ProteomeSize.txt'"
-rm Genome.txt Genome.fa Genomev2.fa Genomev3.fa TiddyGenome.fa GeneCount.txt AminoacidCount.txt Genomebaby.txt
+rm Genome.txt Genome.fa Genomev2.fa Genomev3.fa TiddyGenome.fa GeneCount.txt AminoacidCount.txt Genomebaby.txt LongestProtein.fa
 exit 0 
+elif [[ $response =~ ^([nN][oO]|[nN])$ ]] && [ -r $gbk ] ; then
+echo "Processing..."
+python ../../../../opt/gb2tab-1.2.1/gb2tab.py -f CDS --genename --block-chars=[E] < $gbk | cut -f1,2 > Genomebaby.txt
+
+cat << EOF > pyscript.py
+#!/usr/bin/python
+
+import fileinput
+
+for line in fileinput.input():
+	tokens = line.split("\t")
+	name = tokens[0]
+	seq = tokens[1]
+
+	print ">%s\n%s" % (name, seq)
+
+EOF
+
+chmod +x pyscript.py
+
+./pyscript.py Genomebaby.txt > Genome.txt
+
+rm pyscript.py
+
+. ../../../../opt/bbmap/reformat.sh in=Genome.txt out=Genome.fa ow
+perl -p -e 's/^(>.*)$/$1\_/g' Genome.fa > Genomev2.fa
+. ../../../../opt/bbmap/reformat.sh in=Genomev2.fa out=Genomev3.fa uniquenames ow
+sed 's,__,%,g' Genomev3.fa | sed 's,_,+,g' | sed 's,+,_1,g' | sed 's,%,_,g' > TiddyGenome.fa
+grep '^>' TiddyGenome.fa | wc -l | sed -re ' :restart ; s/([0-9])([0-9]{3})($|[^0-9])/\1,\2\3/ ; t restart ' | awk '{print $1" Genes"}' > GeneCount.txt
+grep -v '^>' TiddyGenome.fa | wc -c | sed -re ' :restart ; s/([0-9])([0-9]{3})($|[^0-9])/\1,\2\3/ ; t restart ' | awk '{print $1" Aminoacids"}' > AminoacidCount.txt
+cat GeneCount.txt AminoacidCount.txt > ProteomeSize.txt
+echo "Process completed; please verify the outputs."
+echo "Proteome size can be found in 'ProteomeSize.txt'"
+rm Genome.txt Genome.fa Genomev2.fa Genomev3.fa TiddyGenome.fa GeneCount.txt AminoacidCount.txt Genomebaby.txt
+exit 0
 else 
 echo "Input is missing or is in an incorrect format."
 exit 1
