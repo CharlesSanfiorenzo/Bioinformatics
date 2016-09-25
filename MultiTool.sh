@@ -1,9 +1,10 @@
 #!/bin/bash
 
-#Dependencies: Bowtie2, SAMtools, BBTools, gb2tab, standard unix, python-2.7, perl 
+#Dependencies: Bowtie2, SAMtools, BBTools, gb2tab, standard unix, python-2.7+, perl 
 
 PS3='Enter your choice (use number): '
 options=("Extract" "GeneCopies" "FindGene" "ReadQuality" "ProteomeSize" "BaseCounter" "SNPCalling" "ToolBox" "Help" "Quit")
+alignment=("MultipleAlignments" "SingleAlignment")
 suboptions=("SingleRead" "ReadPair")
 suboptionspsize=("RnaGBK" "ProteinGBK")
 genesoptions=("Exclusive" "Inclusive")
@@ -118,20 +119,59 @@ esac
 done
 ;;
         "GeneCopies")
+clear
+select align in "${alignment[@]}"
+do
+    case $align in
+        "MultipleAlignments")
+
 select subopt in "${suboptions[@]}"
 do
     case $subopt in
         "SingleRead")
-echo "Select your reference (.fa) and read (.fastq) files; include path."
-read -p "Reference : " ref
-read -p "Read : " reads
+echo "Number of reference files in directories and/or subdirectories:"
+find . -mindepth 1 -type f -name "*.fa" -o -name "*.faa" -o -name "*.fna" -o -name "*.ffn" -o -name "*.frn" -exec printf x \; | wc -c
+echo "Full list: "
+ls -L | find . -name "*.fa" -o -name "*.faa" -o -name "*.fna" -o -name "*.ffn" -o -name "*.frn"
+echo "Enter number of alignments to be made"
+read -p "AlignmentNumber : " number
+COUNTER=1
+
+
+	while [ $COUNTER -le $number ]; do
+echo -e "\n"
+echo "$(tput setaf 6)Alignment $COUNTER"
+echo "$(tput setaf 0)Select your reference (.fa) and read (.fastq) files; include path."
+echo "Note: You may choose from the following files in this directory and/or 
+subdirectories "
+ls -L | find . -name "*.fa" -o -name "*.faa" -o -name "*.fna" -o -name "*.ffn" -o -name "*.frn"
+read -p "Reference : " ref_$COUNTER
+echo "Note: You may choose from the following files in this directory and/or 
+subdirectories "
+ls -L | find . -name "*.fastq"
+read -p "Read : " reads_$COUNTER
 echo "Select a name for your build and cov results."
-read -p "BuildName : " build
-read -p "ResultsName : " CovResults
+read -p "BuildName : " build_$COUNTER
+read -p "ResultsName : " CovResults_$COUNTER
 echo "Note: If previous values for coverage resulted null, choose 'Yes'"
-read -r -p "Do you wish to allow mixed mapping? [y/N] : " response
+read -r -p "Do you wish to allow mixed mapping? [y/N] : " response_$COUNTER
+
+let COUNTER=COUNTER+1
+
+	done
+
+COUNTER=1
+
+	while [ $COUNTER -le $number ]; do
+
 cmd="sort"
-if [ -r $ref ] || [[ $response =~ ^([yY][eE][sS]|[yY])$ ]] ; then
+eval ref=\$ref_$COUNTER
+eval reads=\$reads_$COUNTER
+eval build=\$build_$COUNTER
+eval CovResults=\$CovResults_$COUNTER
+eval response=\$response_$COUNTER
+
+if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]] && [ -r $ref ] ; then
 echo $ref $build | bowtie2-build $ref $build
 echo $build $reads | bowtie2 -x $build -D 0 -R 0 -N 0 --no-1mm-upfront --no-discordant $reads --threads 16 | samtools view -bS - > $build.bam
 echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
@@ -139,7 +179,132 @@ echo $build $CovResults | samtools depth $build.sorted.bam | awk '{sum+=$3; sums
 echo $build | rm $build.bam
 echo "Process complete. Please verify '$CovResults'."
 exit 0
-elif [ -r $ref ] || [[ $response =~ ^([nN][oO]|[nN])$ ]] ; then
+elif [[ $response =~ ^([nN][oO]|[nN])$ ]] && [ -r $ref ] ; then
+echo $ref $build | bowtie2-build $ref $build
+echo $build $read_1 $read_2 | bowtie2 -x $build -D 0 -R 0 -N 0 --no-1mm-upfront --no-mixed --no-discordant -1 $read_1 -2 $read_2 --threads 16 | samtools view -bS - > $build.bam
+echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
+echo $build $CovResults | samtools depth $build.sorted.bam | awk '{sum+=$3; sumsq+=$3*$3} END { print "Average = ",sum/NR; print "Stdev = ",sqrt(sumsq/NR - (sum/NR)**2)}' > $CovResults 
+echo $build | rm $build.bam $build.sorted.bam
+echo "Process complete. Please verify '$CovResults'."
+exit 0
+else 
+echo "Outputs missing and/or truncated, please verify inputs"
+exit 1
+fi
+
+let COUNTER=COUNTER+1
+done
+
+ ;;
+        "ReadPair")
+
+echo "Number of reference files in directories and/or subdirectories:"
+find . -mindepth 1 -type f -name "*.fa" -o -name "*.faa" -o -name "*.fna" -o -name "*.ffn" -o -name "*.frn" -exec printf x \; | wc -c
+echo "Full list: "
+ls -L | find . -name "*.fa" -o -name "*.faa" -o -name "*.fna" -o -name "*.ffn" -o -name "*.frn"
+echo "Enter number of alignments to be made"
+read -p "AlignmentNumber : " number
+COUNTER=1
+
+
+	while [ $COUNTER -le $number ]; do
+echo -e "\n"
+echo "$(tput setaf 6)Alignment $COUNTER"
+echo "$(tput setaf 0)Select your reference (.fa) and read (.fastq) files; include path."
+echo "Note: You may choose from the following files in this directory and/or 
+subdirectories "
+ls -L | find . -name "*.fa" -o -name "*.faa" -o -name "*.fna" -o -name "*.ffn" -o -name "*.frn"
+read -p "Reference : " ref_$COUNTER
+echo "Note: You may choose from the following files in this directory and/or 
+subdirectories "
+ls -L | find . -name "*.fastq"
+read -p "Read_1 : " read_1_$COUNTER
+read -p "Read_2 : " read_2_$COUNTER
+echo "Select a name for your build and cov results."
+read -p "BuildName : " build_$COUNTER
+read -p "ResultsName : " CovResults_$COUNTER
+echo "Note: If previous values for coverage resulted null, choose 'Yes'"
+read -r -p "Do you wish to allow mixed mapping? [y/N] : " response_$COUNTER
+
+let COUNTER=COUNTER+1
+
+	done
+
+COUNTER=1
+
+	while [ $COUNTER -le $number ]; do
+
+cmd="sort"
+eval ref=\$ref_$COUNTER
+eval read_1=\$read_1_$COUNTER
+eval read_2=\$read_2_$COUNTER
+eval build=\$build_$COUNTER
+eval CovResults=\$CovResults_$COUNTER
+eval response=\$response_$COUNTER
+
+if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]] && [ -r $ref ] ; then
+echo $ref $build | bowtie2-build $ref $build
+echo $build $read_1 $read_2 | bowtie2 -x $build -D 0 -R 0 -N 0 --no-1mm-upfront --no-discordant -1 $read_1 -2 $read_2 --threads 16 | samtools view -bS - > $build.bam
+echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
+echo $build $CovResults | samtools depth $build.sorted.bam | awk '{sum+=$3; sumsq+=$3*$3} END { print "Average = ",sum/NR; print "Stdev = ",sqrt(sumsq/NR - (sum/NR)**2)}' > $CovResults 
+echo $build | rm $build.bam
+echo "Process complete. Please verify '$CovResults'."
+exit 0
+elif [[ $response =~ ^([nN][oO]|[nN])$ ]] && [ -r $ref ] ; then
+echo $ref $build | bowtie2-build $ref $build
+echo $build $read_1 $read_2 | bowtie2 -x $build -D 0 -R 0 -N 0 --no-1mm-upfront --no-mixed --no-discordant -1 $read_1 -2 $read_2 --threads 16 | samtools view -bS - > $build.bam
+echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
+echo $build $CovResults | samtools depth $build.sorted.bam | awk '{sum+=$3; sumsq+=$3*$3} END { print "Average = ",sum/NR; print "Stdev = ",sqrt(sumsq/NR - (sum/NR)**2)}' > $CovResults 
+echo $build | rm $build.bam $build.sorted.bam
+echo "Process complete. Please verify '$CovResults'."
+exit 0
+else 
+echo "Outputs missing and/or truncated, please verify inputs"
+exit 1
+fi
+
+let COUNTER=COUNTER+1
+done
+
+;;
+
+*) echo invalid option;;
+
+esac
+done
+;;
+
+  "SingleAlignment")
+
+select subopt in "${suboptions[@]}"
+do
+    case $subopt in
+        "SingleRead")
+clear
+echo "Select your reference (.fa) and read (.fastq) files; include path."
+echo "Note: You may choose from the following files in this directory and/or 
+subdirectories "
+ls -L | find . -name "*.fa" -o -name "*.faa" -o -name "*.fna" -o -name "*.ffn" -o -name "*.frn"
+read -p "Reference : " ref
+echo "Note: You may choose from the following files in this directory and/or 
+subdirectories "
+ls -L | find . -name "*.fastq"
+read -p "Read : " reads
+echo "Select a name for your build and cov results."
+read -p "BuildName : " build
+read -p "ResultsName : " CovResults
+echo "Note: If previous values for coverage resulted null, choose 'Yes'"
+read -r -p "Do you wish to allow mixed mapping? [y/N] : " response
+cmd="sort"
+if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]] && [ -r $ref ] ; then
+echo $ref $build | bowtie2-build $ref $build
+echo $build $reads | bowtie2 -x $build -D 0 -R 0 -N 0 --no-1mm-upfront --no-discordant $reads --threads 16 | samtools view -bS - > $build.bam
+echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
+echo $build $CovResults | samtools depth $build.sorted.bam | awk '{sum+=$3; sumsq+=$3*$3} END { print "Average = ",sum/NR; print "Stdev = ",sqrt(sumsq/NR - (sum/NR)**2)}' > $CovResults 
+echo $build | rm $build.bam
+echo "Process complete. Please verify '$CovResults'."
+exit 0
+elif [[ $response =~ ^([nN][oO]|[nN])$ ]] && [ -r $ref ] ; then
 echo $ref $build | bowtie2-build $ref $build
 echo $build $reads | bowtie2 -x $build -D 0 -R 0 -N 0 --no-1mm-upfront --no-mixed --no-discordant $reads --threads 16 | samtools view -bS - > $build.bam
 echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
@@ -153,8 +318,15 @@ exit 1
 fi       
             ;;
         "ReadPair")
+clear
 echo "Select your reference (.fa) and read (.fastq) files; include path."
+echo "Note: You may choose from the following files in this directory and/or 
+subdirectories "
+ls -L | find . -name "*.fa" -o -name "*.faa" -o -name "*.fna" -o -name "*.ffn" -o -name "*.frn"
 read -p "Reference : " ref
+echo "Note: You may choose from the following files in this directory and/or 
+subdirectories "
+ls -L | find . -name "*.fastq"
 read -p "Read_1 : " read_1
 read -p "Read_2 : " read_2
 echo "Select a name for your build and cov results."
@@ -163,7 +335,7 @@ read -p "ResultsName : " CovResults
 echo "Note: If previous values for coverage resulted null, choose 'Yes'"
 read -r -p "Do you wish to allow mixed mapping? [y/N] : " response
 cmd="sort"
-if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]] ; then
+if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]] && [ -r $ref ] ; then
 echo $ref $build | bowtie2-build $ref $build
 echo $build $read_1 $read_2 | bowtie2 -x $build -D 0 -R 0 -N 0 --no-1mm-upfront --no-discordant -1 $read_1 -2 $read_2 --threads 16 | samtools view -bS - > $build.bam
 echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
@@ -171,7 +343,7 @@ echo $build $CovResults | samtools depth $build.sorted.bam | awk '{sum+=$3; sums
 echo $build | rm $build.bam
 echo "Process complete. Please verify '$CovResults'."
 exit 0
-elif [[ $response =~ ^([nN][oO]|[nN])$ ]] ; then
+elif [[ $response =~ ^([nN][oO]|[nN])$ ]] && [ -r $ref ] ; then
 echo $ref $build | bowtie2-build $ref $build
 echo $build $read_1 $read_2 | bowtie2 -x $build -D 0 -R 0 -N 0 --no-1mm-upfront --no-mixed --no-discordant -1 $read_1 -2 $read_2 --threads 16 | samtools view -bS - > $build.bam
 echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
@@ -186,6 +358,11 @@ fi
 ;;
               *) echo invalid option;;
         
+esac
+done
+;;
+
+              *) echo invalid option;;
 esac
 done
            ;;
@@ -234,8 +411,15 @@ select subopt in "${suboptions[@]}"
 do
     case $subopt in
         "SingleRead")
+clear
 echo "Select your reference (.fa) and read (.fastq) files; include path."
+echo "Note: You may choose from the following files in this directory and/or 
+subdirectories "
+ls -L | find . -name "*.fa" -o -name "*.faa" -o -name "*.fna" -o -name "*.ffn" -o -name "*.frn"
 read -p "Reference : " ref
+echo "Note: You may choose from the following files in this directory and/or 
+subdirectories "
+ls -L | find . -name "*.fastq"
 read -p "Read : " reads
 echo "Select a name for your build, coverage & vcf results."
 read -p "BuildName : " build
@@ -270,8 +454,15 @@ exit 1
 fi       
             ;;
         "ReadPair")
+clear
 echo "Select your reference (.fa) and read (.fastq) files; include path."
+echo "Note: You may choose from the following files in this directory and/or 
+subdirectories "
+ls -L | find . -name "*.fa" -o -name "*.faa" -o -name "*.fna" -o -name "*.ffn" -o -name "*.frn"
 read -p "Reference : " ref
+echo "Note: You may choose from the following files in this directory and/or 
+subdirectories "
+ls -L | find . -name "*.fastq"
 read -p "Read_1 : " read_1
 read -p "Read_2 : " read_2
 echo "Select a name for your build, coverage & vcf results."
@@ -361,9 +552,9 @@ tr "\t" "\n"  |\
 fold -w 80 > LongestProtein.fa
 grep '^>' LongestProtein.fa | wc -l | sed -re ' :restart ; s/([0-9])([0-9]{3})($|[^0-9])/\1,\2\3/ ; t restart ' | awk '{print $1" Genes"}' > GeneCount.txt
 grep -v '^>' LongestProtein.fa | wc -c | awk '{print $1/3}' |  awk '{printf "%2.1f\n",$0}' | sed -re ' :restart ; s/([0-9])([0-9]{3})($|[^0-9])/\1,\2\3/ ; t restart ' | awk '{print $1" Aminoacids"}' > AminoacidCount.txt
-cat GeneCount.txt AminoacidCount.txt > ProteomeSize.txt
+cat GeneCount.txt AminoacidCount.txt > LongestProteomeSize.txt
 echo "Process completed; please verify the outputs."
-echo "Proteome size can be found in 'ProteomeSize.txt'"
+echo "Proteome size can be found in 'LongestProteomeSize.txt'"
 rm Genome.txt Genome.fa Genomev2.fa Genomev3.fa TiddyGenome.fa GeneCount.txt AminoacidCount.txt Genomebaby.txt LongestProtein.fa
 exit 0
 elif [[ $response =~ ^([nN][oO]|[nN])$ ]] && [ -r $gbk ] ; then
@@ -454,9 +645,9 @@ tr "\t" "\n"  |\
 fold -w 80 > LongestProtein.fa
 grep '^>' LongestProtein.fa | wc -l | sed -re ' :restart ; s/([0-9])([0-9]{3})($|[^0-9])/\1,\2\3/ ; t restart ' | awk '{print $1" Genes"}' > GeneCount.txt
 grep -v '^>' LongestProtein.fa | wc -c | sed -re ' :restart ; s/([0-9])([0-9]{3})($|[^0-9])/\1,\2\3/ ; t restart ' | awk '{print $1" Aminoacids"}' > AminoacidCount.txt
-cat GeneCount.txt AminoacidCount.txt > ProteomeSize.txt
+cat GeneCount.txt AminoacidCount.txt > LongestProteomeSize.txt
 echo "Process completed; please verify the outputs."
-echo "Proteome size can be found in 'ProteomeSize.txt'"
+echo "Proteome size can be found in 'LongestProteomeSize.txt'"
 rm Genome.txt Genome.fa Genomev2.fa Genomev3.fa TiddyGenome.fa GeneCount.txt AminoacidCount.txt Genomebaby.txt LongestProtein.fa
 exit 0 
 elif [[ $response =~ ^([nN][oO]|[nN])$ ]] && [ -r $gbk ] ; then
