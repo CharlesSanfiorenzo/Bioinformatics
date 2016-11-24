@@ -10,11 +10,15 @@ Run this script w/ Extract option, but keep only canonical sequences. Parse the 
 This feature extracts a specific gene header and sequence from a mutifasta file. Run this script w/ Extract option. When prompted, use the fasta output from the Extract option as input; specify the gene of interest. Inclusive mode will keep all genes with similar names, and exclusive mode will keep the gene named with the regular expression given.
 
 #IV. Read Quality Test
-Using fastq files & reference fasta, this option will output alignment rate, average coverage, and TS/TV ratio for the selected organism.
-             ## ->  Good Quality indicators for mammalian data: <-
-              a) Alignment rate > 90%
-              b) Average Coverage > 12
-              c) TS/TV ratio higher than, or close to 2.1
+Using fastq files & a reference fasta, this option will output alignment rate, average coverage, and TS/TV ratio for the selected organism.
+
+Good Quality indicators for mammalian data
+------------ | -------------
+Alignment Rate | More than 90%
+Average Coverage| More than 12
+TS/TV Ratio | Higher than or close to 2.1
+
+
             
           V. Proteome Size
                This feature will annotate the amount of aminoacids or codons in 
