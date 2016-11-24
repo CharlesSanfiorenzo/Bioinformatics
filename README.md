@@ -3,7 +3,7 @@
 
 ## Table of Contents
 - [Installation]()
-- [Documentation](https://github.com/CharlesSanfiorenzo/Bioinformatics/tree/master/docs)
+- [Documentation](https://github.com/CharlesSanfiorenzo/Bioinformatics/tree/master/docs/GeneralUse.md)
 - [Support](#support)
  - [Help](#configuration-issueshelp)
  - [Bugs](#bugs--issues)
