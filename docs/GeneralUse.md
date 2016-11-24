@@ -13,6 +13,7 @@ This feature extracts a specific gene header and sequence from a mutifasta file.
 Using fastq files & a reference fasta, this option will output alignment rate, average coverage, and TS/TV ratio for the selected organism.
 
 Good Quality indicators for genomic mammalian data
+
 Atribute | Results
 ------------ | -------------
 Alignment Rate | More than 90%
@@ -20,17 +21,13 @@ Average Coverage| More than 12
 TS/TV Ratio | Higher than or close to 2.1
 
 
-            
-          V. Proteome Size
-               This feature will annotate the amount of aminoacids or codons in 
-               an organism's proteome by using sequences stored in Genbank
-               files. It will also count the headers (amount of protein coding
-               genes annotated).
-              -1) Download from NCBI's ftp page a genbank belonging to either 
-                  all RNA or protein sequences. 
-              -2) Verify output: 'ProteomeSize.txt'.
+#V. Proteome Size
+This feature will annotate the amount of aminoacids or codons in an organism's proteome by using sequences stored in Genbank or RefSeq files. It will also count the headers (amount of protein coding genes annotated).
 
-          VI. Base Counter
+1) Download from NCBI's ftp page a genbank belonging to either all RNA or protein sequences. 
+2) Verify output: 'ProteomeSize.txt'.
+
+#VI. Base Counter
                Outputs amount of bases in individual or multifasta files.
 
            VI. SNP Calling
