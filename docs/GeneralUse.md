@@ -38,6 +38,8 @@ Using fastq files & a reference fasta genome, this feature produces a quality-fi
 
 #VI. Mutational Load
 This feature assays the amount of possible synonymous and non-synonymous sites in a gene's canonical coding sequence, as well as the amount of synonymous and non-synonymous SNPs in the coding regions of the raw sequence of the organism (we use snpEff for this last bit). These values are used to calculate the polymorphic Ka/Ks ratio of the genome through the Nei-Gojobori method.
-*Input: Filtered VCF, snpEff Library
-*Output: SNPStats.txt (SNP site and occurance info), pKa/Ks.txt
+*Input: 
+Filtered VCF, snpEff Library
+*Output: 
+SNPStats.txt (SNP site and occurance info), pKa/Ks.txt
 
