@@ -24,13 +24,16 @@ TS/TV Ratio | Higher than or close to 2.1
 #V. Proteome Size
 This feature will annotate the amount of aminoacids or codons in an organism's proteome by using sequences stored in Genbank or RefSeq files. It will also count the headers (amount of protein coding genes annotated).
 
-1. Download from NCBI's ftp page a genbank belonging to either all RNA or protein sequences. 
+1. Download from NCBI's ftp page a genbank belonging to either all RNA or protein sequences.
+2. Choose which type of data you are using (i.e. transcriptomic vs proteomic)
 2. Verify output: 'ProteomeSize.txt'.
 
 #VI. Base Counter
-               Outputs amount of bases in individual or multifasta files.
+Outputs amount of bases in individual or multifasta files. If you wish to determine the amount of bases per sequence in a multifasta file, please use 'Counter.pl'.
+* Use:
+perl Counter.pl inputfile.fa > outputfile
 
-           VI. SNP Calling
+#VI. SNP Calling
 
          VII. PSMC Analysis
 
