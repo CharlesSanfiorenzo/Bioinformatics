@@ -3,14 +3,18 @@
 #Dependencies: Bowtie2, SAMtools, BBTools, gb2tab, standard unix, python-2.7+, perl 
 
 PS3='Enter your choice (use number): '
-options=("Extract" "GeneCopies" "FindGene" "ReadQuality" "ProteomeSize" "BaseCounter" "SNPCalling" "ToolBox" "Help" "Quit")
+options=("Extract" "GeneCopies" "FindGene" "ReadQuality" "ProteomeSize" "BaseCounter" "SNPCalling" "MutationLoad" "ToolBox" "Help" "Quit")
 alignment=("MultipleAlignments" "SingleAlignment")
 suboptions=("SingleRead" "ReadPair")
 suboptionspsize=("RnaGBK" "ProteinGBK")
 genesoptions=("Exclusive" "Inclusive")
 toolbox=("FileDeleter" "Concatenator")
 extractoptions=("All Variants" "Longest Variant")
- 
+basecountopt=("SingleSeq" "MultiSeq")
+alnoptions=("Bowtie2" "Bwa-mem")
+
+#Path to most programs. Modify if needed.
+dirpath="../../../../opt"
 
 select opt in "${options[@]}"
 do
@@ -26,7 +30,7 @@ read -p "GBK file : " gbk
 read -p "Output : " output
 echo "Processing..."
 if [ -r $gbk ]; then
-python ../../../../opt/gb2tab-1.2.1/gb2tab.py -f CDS --genename --block-chars=[E] < $gbk | cut -f1,2 > Genomebaby.txt
+python $dirpath/gb2tab-1.2.1/gb2tab.py -f CDS --genename --block-chars=[E] < $gbk | cut -f1,2 > Genomebaby.txt
 
 cat << EOF > pyscript.py
 #!/usr/bin/python
@@ -48,9 +52,9 @@ chmod +x pyscript.py
 
 rm pyscript.py
 
-. ../../../../opt/bbmap/reformat.sh in=Genome.txt out=Genome.fa ow
+. $dirpath/bbmap/reformat.sh in=Genome.txt out=Genome.fa ow
 perl -p -e 's/^(>.*)$/$1\_/g' Genome.fa > Genomev2.fa
-. ../../../../opt/bbmap/reformat.sh in=Genomev2.fa out=Genomev3.fa uniquenames ow
+. $dirpath/bbmap/reformat.sh in=Genomev2.fa out=Genomev3.fa uniquenames ow
 sed 's,__,%,g' Genomev3.fa | sed 's,_,+,g' | sed 's,+,_1,g' | sed 's,%,_,g' > $output
 echo "Process completed; please verify the outputs. Output can be found in 
       '$output'."
@@ -68,7 +72,7 @@ read -p "GBK file : " gbk
 read -p "Output : " output
 echo "Processing..."
 if [ -r $gbk ]; then
-python ../../../../opt/gb2tab-1.2.1/gb2tab.py -f CDS --genename --block-chars=[E] < $gbk | cut -f1,2 > Genomebaby.txt
+python $dirpath/gb2tab-1.2.1/gb2tab.py -f CDS --genename --block-chars=[E] < $gbk | cut -f1,2 > Genomebaby.txt
 
 cat << EOF > pyscript.py
 #!/usr/bin/python
@@ -90,9 +94,9 @@ chmod +x pyscript.py
 
 rm pyscript.py
 
-. ../../../../opt/bbmap/reformat.sh in=Genome.txt out=Genome.fa ow
+. $dirpath/bbmap/reformat.sh in=Genome.txt out=Genome.fa ow
 perl -p -e 's/^(>.*)$/$1\_/g' Genome.fa > Genomev2.fa
-. ../../../../opt/bbmap/reformat.sh in=Genomev2.fa out=Genomev3.fa uniquenames ow
+. $dirpath/bbmap/reformat.sh in=Genomev2.fa out=Genomev3.fa uniquenames ow
 sed 's,__,%,g' Genomev3.fa | sed 's,_,+,g' | sed 's,+,_1,g' | sed 's,%,_,g' > TiddyGenome.fa
 cat TiddyGenome.fa |\
 awk '/^>/ {if(N>0) printf("\n"); printf("%s\t",$0);N++;next;} {printf("%s",$0);} END {if(N>0) printf("\n");}' |\
@@ -103,10 +107,11 @@ sort -t '	' -k1,1 -u -s |\
 sed 's/	/_/' |\
 cut -f 1,2 |\
 tr "\t" "\n"  |\
-fold -w 80 > $output
+fold -w 80 > temp.out
+sed -e  '/^>/s/_.*//' temp.out > $output
 echo "Process completed; please verify the outputs. Output can be found in 
       '$output'."
-rm Genome.txt Genome.fa Genomev2.fa Genomev3.fa TiddyGenome.fa Genomebaby.txt
+rm Genome.txt Genome.fa Genomev2.fa Genomev3.fa TiddyGenome.fa Genomebaby.txt temp.out
 exit 0
 else 
 echo "Input is missing or is in an incorrect format."
@@ -135,6 +140,11 @@ echo "Full list: "
 ls -L | find . -name "*.fa" -o -name "*.faa" -o -name "*.fna" -o -name "*.ffn" -o -name "*.frn"
 echo "Enter number of alignments to be made"
 read -p "AlignmentNumber : " number
+echo "Note: You may choose from the following files in this directory and/or 
+subdirectories "
+ls -L | find . -name "*.fastq"
+read -p "Read : " reads
+
 COUNTER=1
 
 
@@ -146,10 +156,6 @@ echo "Note: You may choose from the following files in this directory and/or
 subdirectories "
 ls -L | find . -name "*.fa" -o -name "*.faa" -o -name "*.fna" -o -name "*.ffn" -o -name "*.frn"
 read -p "Reference : " ref_$COUNTER
-echo "Note: You may choose from the following files in this directory and/or 
-subdirectories "
-ls -L | find . -name "*.fastq"
-read -p "Read : " reads_$COUNTER
 echo "Select a name for your build and cov results."
 read -p "BuildName : " build_$COUNTER
 read -p "ResultsName : " CovResults_$COUNTER
@@ -166,7 +172,6 @@ COUNTER=1
 
 cmd="sort"
 eval ref=\$ref_$COUNTER
-eval reads=\$reads_$COUNTER
 eval build=\$build_$COUNTER
 eval CovResults=\$CovResults_$COUNTER
 eval response=\$response_$COUNTER
@@ -181,12 +186,11 @@ echo "Process complete. Please verify '$CovResults'."
 exit 0
 elif [[ $response =~ ^([nN][oO]|[nN])$ ]] && [ -r $ref ] ; then
 echo $ref $build | bowtie2-build $ref $build
-echo $build $read_1 $read_2 | bowtie2 -x $build -D 0 -R 0 -N 0 --no-1mm-upfront --no-mixed --no-discordant -1 $read_1 -2 $read_2 --threads 16 | samtools view -bS - > $build.bam
+echo $build $reads | bowtie2 -x $build -D 0 -R 0 -N 0 --no-1mm-upfront --no-mixed --no-discordant $reads --threads 16 | samtools view -bS - > $build.bam
 echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
 echo $build $CovResults | samtools depth $build.sorted.bam | awk '{sum+=$3; sumsq+=$3*$3} END { print "Average = ",sum/NR; print "Stdev = ",sqrt(sumsq/NR - (sum/NR)**2)}' > $CovResults 
 echo $build | rm $build.bam $build.sorted.bam
 echo "Process complete. Please verify '$CovResults'."
-exit 0
 else 
 echo "Outputs missing and/or truncated, please verify inputs"
 exit 1
@@ -257,7 +261,6 @@ echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
 echo $build $CovResults | samtools depth $build.sorted.bam | awk '{sum+=$3; sumsq+=$3*$3} END { print "Average = ",sum/NR; print "Stdev = ",sqrt(sumsq/NR - (sum/NR)**2)}' > $CovResults 
 echo $build | rm $build.bam $build.sorted.bam
 echo "Process complete. Please verify '$CovResults'."
-exit 0
 else 
 echo "Outputs missing and/or truncated, please verify inputs"
 exit 1
@@ -298,7 +301,7 @@ read -r -p "Do you wish to allow mixed mapping? [y/N] : " response
 cmd="sort"
 if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]] && [ -r $ref ] ; then
 echo $ref $build | bowtie2-build $ref $build
-echo $build $reads | bowtie2 -x $build -D 0 -R 0 -N 0 --no-1mm-upfront --no-discordant $reads --threads 16 | samtools view -bS - > $build.bam
+echo $build $reads | bowtie2 -x $build -D 0 -R 0 -N 0 --no-1mm-upfront --no-discordant -1 $reads --threads 16 | samtools view -bS - > $build.bam
 echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
 echo $build $CovResults | samtools depth $build.sorted.bam | awk '{sum+=$3; sumsq+=$3*$3} END { print "Average = ",sum/NR; print "Stdev = ",sqrt(sumsq/NR - (sum/NR)**2)}' > $CovResults 
 echo $build | rm $build.bam
@@ -430,7 +433,7 @@ if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]] && [ -r $ref ] ; then
 cmd="sort"
 echo $ref $build | bowtie2-build $ref $build
 echo $build $reads | bowtie2 -x $build $reads --threads 16 -S $build.sam > AlignmentStats.txt
-echo $build | samtools view -bS $build.sam > $build.bam
+echo $build | samtools view -bS $build.sam -@ 16 > $build.bam
 echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
 echo $build $CovResults | samtools depth $build.sorted.bam | awk '{sum+=$3; sumsq+=$3*$3} END { print "Average = ",sum/NR; print "Stdev = ",sqrt(sumsq/NR - (sum/NR)**2)}' > CoverageStats.txt 
 cat AlignmentStats.txt CoverageStats.txt > $CovResults
@@ -447,6 +450,7 @@ echo $build $CovResults | samtools depth $build.sorted.bam | awk '{sum+=$3; sums
 echo $build | rm $build.bam
 echo $ref $build | samtools mpileup -uf $ref $build.sorted.bam | bcftools call -c > $build.vcf
 echo $build $VcfResults | bcftools stats $build.vcf > $VcfResults
+echo $build | rm $build.sam $build.bam $build.sorted.bam
 exit 0
 else 
 echo "Outputs missing and/or truncated, please verify inputs"
@@ -474,7 +478,7 @@ if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]] && [ -r $ref ] ; then
 cmd="sort"
 echo $ref $build | bowtie2-build $ref $build
 echo $build $read_1 $read_2 | bowtie2 -x $build -1 $read_1 -2 $read_2 --threads 16 -S $build.sam > AlignmentStats.txt
-echo $build | samtools view -bS $build.sam > $build.bam
+echo $build | samtools view -bS $build.sam -@ 16 > $build.bam
 echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
 echo $build $CovResults | samtools depth $build.sorted.bam | awk '{sum+=$3; sumsq+=$3*$3} END { print "Average = ",sum/NR; print "Stdev = ",sqrt(sumsq/NR - (sum/NR)**2)}' > CoverageStats.txt
 cat AlignmentStats.txt CoverageStats.txt > $CovResults
@@ -490,6 +494,7 @@ echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
 echo $build $CovResults | samtools depth $build.sorted.bam | awk '{sum+=$3; sumsq+=$3*$3} END { print "Average = ",sum/NR; print "Stdev = ",sqrt(sumsq/NR - (sum/NR)**2)}' > $CovResults 
 echo $ref $build | samtools mpileup -uf $ref $build.sorted.bam | bcftools call -c > $build.vcf
 echo $build $VcfResults | bcftools stats $build.vcf > $VcfResults
+echo $build | rm $build.sam $build.bam $build.sorted.bam
 exit 0
 else 
 echo "Outputs missing and/or truncated, please verify inputs"
@@ -512,7 +517,7 @@ read -p "GBK file : " gbk
 read -r -p "Do you wish to evaluate longest variant per gene only? [y/N] : " response
 if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]] && [ -r $gbk ] ; then
 echo "Processing..."
-python ../../../../opt/gb2tab-1.2.1/gb2tab.py -f CDS --genename --block-chars=[E] < $gbk | cut -f1,2 > Genomebaby.txt
+python $dirpath/gb2tab-1.2.1/gb2tab.py -f CDS --genename --block-chars=[E] < $gbk | cut -f1,2 > Genomebaby.txt
 
 cat << EOF > pyscript.py
 #!/usr/bin/python
@@ -536,9 +541,9 @@ rm pyscript.py
 
 
 
-. ../../../../opt/bbmap/reformat.sh in=Genome.txt out=Genome.fa ow
+. $dirpath/bbmap/reformat.sh in=Genome.txt out=Genome.fa ow
 perl -p -e 's/^(>.*)$/$1\_/g' Genome.fa > Genomev2.fa
-. ../../../../opt/bbmap/reformat.sh in=Genomev2.fa out=Genomev3.fa uniquenames ow
+. $dirpath/bbmap/reformat.sh in=Genomev2.fa out=Genomev3.fa uniquenames ow
 sed 's,__,%,g' Genomev3.fa | sed 's,_,+,g' | sed 's,+,_1,g' | sed 's,%,_,g' > TiddyGenome.fa
 cat TiddyGenome.fa |\
 awk '/^>/ {if(N>0) printf("\n"); printf("%s\t",$0);N++;next;} {printf("%s",$0);} END {if(N>0) printf("\n");}' |\
@@ -559,7 +564,7 @@ rm Genome.txt Genome.fa Genomev2.fa Genomev3.fa TiddyGenome.fa GeneCount.txt Ami
 exit 0
 elif [[ $response =~ ^([nN][oO]|[nN])$ ]] && [ -r $gbk ] ; then
 echo "Processing..."
-python ../../../../opt/gb2tab-1.2.1/gb2tab.py -f CDS --genename --block-chars=[E] < $gbk | cut -f1,2 > Genomebaby.txt
+python $dirpath/gb2tab-1.2.1/gb2tab.py -f CDS --genename --block-chars=[E] < $gbk | cut -f1,2 > Genomebaby.txt
 
 cat << EOF > pyscript.py
 #!/usr/bin/python
@@ -583,9 +588,9 @@ rm pyscript.py
 
 
 
-. ../../../../opt/bbmap/reformat.sh in=Genome.txt out=Genome.fa ow
+. $dirpath/bbmap/reformat.sh in=Genome.txt out=Genome.fa ow
 perl -p -e 's/^(>.*)$/$1\_/g' Genome.fa > Genomev2.fa
-. ../../../../opt/bbmap/reformat.sh in=Genomev2.fa out=Genomev3.fa uniquenames ow
+. $dirpath/bbmap/reformat.sh in=Genomev2.fa out=Genomev3.fa uniquenames ow
 sed 's,__,%,g' Genomev3.fa | sed 's,_,+,g' | sed 's,+,_1,g' | sed 's,%,_,g' > TiddyGenome.fa
 
 grep '^>' TiddyGenome.fa | wc -l | sed -re ' :restart ; s/([0-9])([0-9]{3})($|[^0-9])/\1,\2\3/ ; t restart ' | awk '{print $1" Genes"}' > GeneCount.txt
@@ -607,7 +612,7 @@ read -p "GBK file : " gbk
 read -r -p "Do you wish to evaluate longest variant per gene only? [y/N] : " response
 if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]] && [ -r $gbk ] ; then
 echo "Processing..."
-python ../../../../opt/gb2tab-1.2.1/gb2tab.py -f CDS --genename --block-chars=[E] < $gbk | cut -f1,2 > Genomebaby.txt
+python $dirpath/gb2tab-1.2.1/gb2tab.py -f CDS --genename --block-chars=[E] < $gbk | cut -f1,2 > Genomebaby.txt
 
 cat << EOF > pyscript.py
 #!/usr/bin/python
@@ -629,9 +634,9 @@ chmod +x pyscript.py
 
 rm pyscript.py
 
-. ../../../../opt/bbmap/reformat.sh in=Genome.txt out=Genome.fa ow
+. $dirpath/bbmap/reformat.sh in=Genome.txt out=Genome.fa ow
 perl -p -e 's/^(>.*)$/$1\_/g' Genome.fa > Genomev2.fa
-. ../../../../opt/bbmap/reformat.sh in=Genomev2.fa out=Genomev3.fa uniquenames ow
+. $dirpath/bbmap/reformat.sh in=Genomev2.fa out=Genomev3.fa uniquenames ow
 sed 's,__,%,g' Genomev3.fa | sed 's,_,+,g' | sed 's,+,_1,g' | sed 's,%,_,g' > TiddyGenome.fa
 cat TiddyGenome.fa |\
 awk '/^>/ {if(N>0) printf("\n"); printf("%s\t",$0);N++;next;} {printf("%s",$0);} END {if(N>0) printf("\n");}' |\
@@ -652,7 +657,7 @@ rm Genome.txt Genome.fa Genomev2.fa Genomev3.fa TiddyGenome.fa GeneCount.txt Ami
 exit 0 
 elif [[ $response =~ ^([nN][oO]|[nN])$ ]] && [ -r $gbk ] ; then
 echo "Processing..."
-python ../../../../opt/gb2tab-1.2.1/gb2tab.py -f CDS --genename --block-chars=[E] < $gbk | cut -f1,2 > Genomebaby.txt
+python $dirpath/gb2tab-1.2.1/gb2tab.py -f CDS --genename --block-chars=[E] < $gbk | cut -f1,2 > Genomebaby.txt
 
 cat << EOF > pyscript.py
 #!/usr/bin/python
@@ -674,9 +679,9 @@ chmod +x pyscript.py
 
 rm pyscript.py
 
-. ../../../../opt/bbmap/reformat.sh in=Genome.txt out=Genome.fa ow
+. $dirpath/bbmap/reformat.sh in=Genome.txt out=Genome.fa ow
 perl -p -e 's/^(>.*)$/$1\_/g' Genome.fa > Genomev2.fa
-. ../../../../opt/bbmap/reformat.sh in=Genomev2.fa out=Genomev3.fa uniquenames ow
+. $dirpath/bbmap/reformat.sh in=Genomev2.fa out=Genomev3.fa uniquenames ow
 sed 's,__,%,g' Genomev3.fa | sed 's,_,+,g' | sed 's,+,_1,g' | sed 's,%,_,g' > TiddyGenome.fa
 grep '^>' TiddyGenome.fa | wc -l | sed -re ' :restart ; s/([0-9])([0-9]{3})($|[^0-9])/\1,\2\3/ ; t restart ' | awk '{print $1" Genes"}' > GeneCount.txt
 grep -v '^>' TiddyGenome.fa | wc -c | sed -re ' :restart ; s/([0-9])([0-9]{3})($|[^0-9])/\1,\2\3/ ; t restart ' | awk '{print $1" Aminoacids"}' > AminoacidCount.txt
@@ -708,7 +713,275 @@ exit 1
 fi
 ;;
   "SNPCalling")
+select alnopt in "${alnoptions[@]}"
+do
+    case $alnopt in
+        "Bowtie2")
+select subopt in "${suboptions[@]}"
+do
+    case $subopt in
+
+	"SingleRead")
+echo "Select your reference (.fna) and read (.fastq) files; include path."
+echo "Note: You may choose from the following files in this directory and/or 
+subdirectories "
+ls -L | find . -name "*.fa" -o -name "*.faa" -o -name "*.fna" -o -name "*.ffn" -o -name "*.frn"
+read -p "Reference : " ref
+ls -L | find . -name "*.fastq"
+read -p "Read : " read
+clear
+echo "Select a name for your build, sortedbam, and vcf."
+read -p "BuildName : " build
+read -r -p "Do you wish to run GATK as well? [y/N] : " response
+cmd="sort"
+if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]] && [ -r $ref ] && [ -r $read ] ; then
+
+#Bowtie2 Alignment
+echo $ref $build | bowtie2-build $ref $build
+echo $build $read | bowtie2 -x $build $read --threads 16 -S $build.sam > $build.aln.txt
+echo $build | samtools view -bS $build.sam -@ 16 > $build.bam
+
+#GATK VCF:
+echo $ref | java -Djava.io.tmpdir=../../tmp -XX:ParallelGCThreads=16 -jar $dirpath/picard-tools-2.0.1/picard.jar CreateSequenceDictionary R= $ref O= $ref.dict
+echo $build | java -Djava.io.tmpdir=../../tmp -XX:ParallelGCThreads=16 -jar $dirpath/picard-tools-2.0.1/picard.jar AddOrReplaceReadGroups  INPUT= $build.sam OUTPUT= $build.fixed.sam RGID=1  RGLB= library1  RGPL=illumina RGPU=1  RGSM=sample1 SORT_ORDER=coordinate CREATE_INDEX=TRUE VALIDATION_STRINGENCY=LENIENT
+echo $build | rm $build.sam
+echo $build | java -Djava.io.tmpdir=../../tmp -XX:ParallelGCThreads=16 -jar $dirpath/picard-tools-2.0.1/picard.jar SortSam I= $build.fixed.sam  O= $build.fixed.sorted.bam SORT_ORDER=coordinate CREATE_INDEX=TRUE VALIDATION_STRINGENCY=LENIENT
+echo $build | rm $build.fixed.sam
+echo $ref $build | java -Djava.io.tmpdir=../../tmp -jar $dirpath/GenomeAnalysisTK.jar -nct 16 -T HaplotypeCaller -R $ref -I $build.fixed.sorted.bam -stand_call_conf 30 -stand_emit_conf 10 -o $build.gatk.vcf
+echo $build | rm $build.fixed.sorted.bam
+#Filter
+echo $build | vcftools --vcf $build.gatk.vcf --recode --recode-INFO-all --out $build.gatk --minQ 20.00
+echo $build | bcftools stats $build.gatk.recode.vcf > $build.filteredbowtiegatkvcf.txt
+echo $build | rm $build.gatk.vcf
+
+#Samtools VCF:
+echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
+echo $build | rm $build.bam
+echo $ref $build | samtools mpileup -uf $ref $build.sorted.bam | bcftools call -c > $build.samtools.vcf
+echo $build | rm $build.sorted.bam
+#Filter
+echo $build | vcftools --vcf $build.samtools.vcf --recode --recode-INFO-all --out $build.samtools --minQ 20.00
+echo $build | bcftools stats $build.samtools.recode.vcf > $build.filteredbowtiesamtoolsvcf.txt
+echo $build | rm $build.samtools.vcf
+exit 0
+
+elif [[ $response =~ ^([nN][oO]|[nN])$ ]] && [ -r $ref ] && [ -r $read ] ; then
+echo $ref $build | bowtie2-build $ref $build
+echo $build $read | bowtie2 -x $build $read --threads 16 -S $build.sam > $build.aln.txt
+echo $build | samtools view -bS $build.sam > $build.bam
+echo $build | rm $build.sam
+echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
+echo $build | rm $build.bam
+echo $ref $build | samtools mpileup -uf $ref $build.sorted.bam | bcftools call -c > $build.samtools.vcf
+echo $build | rm $build.sorted.bam 
+echo $build | vcftools --vcf $build.samtools.vcf --recode --recode-INFO-all --out $build.samtools --minQ 20.00
+echo $build | bcftools stats $build.samtools.recode.vcf > $build.filteredbowtiesamtoolsvcf.txt
+echo $build | rm $build.samtools.vcf
+exit 0
+
+else 
+echo "Outputs missing and/or truncated, please verify inputs"
+exit 1
+fi
+
+;;
+
+	"ReadPair")
+echo "Select your reference (.fna) and read (.fastq) files; include path."
+echo "Note: You may choose from the following files in this directory and/or 
+subdirectories "
+ls -L | find . -name "*.fa" -o -name "*.faa" -o -name "*.fna" -o -name "*.ffn" -o -name "*.frn"
+read -p "Reference : " ref
+ls -L | find . -name "*.fastq"
+read -p "Read_1 : " read_1
+read -p "Read_2 : " read_2
+clear
+echo "Select a name for your build, sortedbam, and vcf."
+read -p "BuildName : " build
+read -r -p "Do you wish to run GATK as well? [y/N] : " response
+cmd="sort"
+if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]] && [ -r $ref ] && [ -r $read_1 ] && [ -r $read_2 ] ; then
+
+#Bowtie2 Alignment
+echo $ref $build | bowtie2-build $ref $build
+echo $build $read_1 $read_2 | bowtie2 -x $build -1 $read_1 -2 $read_2 --threads 16 -S $build.sam > $build.aln.txt
+echo $build | samtools view -bS $build.sam -@ 16 > $build.bam
+
+#GATK VCF:
+echo $ref | java -Djava.io.tmpdir=../../tmp -XX:ParallelGCThreads=16 -jar $dirpath/picard-tools-2.0.1/picard.jar CreateSequenceDictionary R= $ref O= $ref.dict
+echo $build | java -Djava.io.tmpdir=../../tmp -XX:ParallelGCThreads=16 -jar $dirpath/picard-tools-2.0.1/picard.jar AddOrReplaceReadGroups  INPUT= $build.sam OUTPUT= $build.fixed.sam RGID=1  RGLB= library1  RGPL=illumina RGPU=1  RGSM=sample1 SORT_ORDER=coordinate CREATE_INDEX=TRUE VALIDATION_STRINGENCY=LENIENT
+echo $build | rm $build.sam
+echo $build | java -Djava.io.tmpdir=../../tmp -XX:ParallelGCThreads=16 -jar $dirpath/picard-tools-2.0.1/picard.jar SortSam I= $build.fixed.sam  O= $build.fixed.sorted.bam SORT_ORDER=coordinate CREATE_INDEX=TRUE VALIDATION_STRINGENCY=LENIENT
+echo $build | rm $build.fixed.sam
+echo $ref $build | java -Djava.io.tmpdir=../../tmp -jar $dirpath/GenomeAnalysisTK.jar -nct 16 -T HaplotypeCaller -R $ref -I $build.fixed.sorted.bam -stand_call_conf 30 -stand_emit_conf 10 -o $build.gatk.vcf
+echo $build | rm $build.fixed.sorted.bam
+#Filter
+echo $build | vcftools --vcf $build.gatk.vcf --recode --recode-INFO-all --out $build.gatk --minQ 20.00
+echo $build | bcftools stats $build.gatk.recode.vcf > $build.filteredbowtiegatkvcf.txt
+echo $build | rm $build.gatk.vcf
+
+#Samtools VCF:
+echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
+echo $build | rm $build.bam
+echo $ref $build | samtools mpileup -uf $ref $build.sorted.bam | bcftools call -c > $build.samtools.vcf
+echo $build | rm $build.sorted.bam
+#Filter
+echo $build | vcftools --vcf $build.samtools.vcf --recode --recode-INFO-all --out $build.samtools --minQ 20.00
+echo $build | bcftools stats $build.samtools.recode.vcf > $build.filteredbowtiesamtoolsvcf.txt
+echo $build | rm $build.samtools.vcf
+exit 0
+
+elif [[ $response =~ ^([nN][oO]|[nN])$ ]] && [ -r $ref ] && [ -r $read ] ; then
+echo $ref $build | bowtie2-build $ref $build
+echo $build $read_1 $read_2 | bowtie2 -x $build -1 $read_1 -2 $read_2 --threads 16 -S $build.sam > $build.aln.txt
+echo $build | samtools view -bS $build.sam -@ 16 > $build.bam
+echo $build | rm $build.sam
+echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
+echo $build | rm $build.bam
+echo $ref $build | samtools mpileup -uf $ref $build.sorted.bam | bcftools call -c > $build.samtools.vcf
+echo $build | rm $build.sorted.bam 
+echo $build | vcftools --vcf $build.samtools.vcf --recode --recode-INFO-all --out $build.samtools --minQ 20.00
+echo $build | bcftools stats $build.samtools.recode.vcf > $build.filteredbowtiesamtoolsvcf.txt
+echo $build | rm $build.samtools.vcf
+exit 0
+
+else 
+echo "Outputs missing and/or truncated, please verify inputs"
+exit 1
+fi
+;;
+
+*) echo invalid option;;
+
+esac
+done
+
+;;
+	"Bwa-mem")
+
+echo "Select your reference (.fna) and read (.fastq) files; include path."
+echo "Note: You may choose from the following files in this directory and/or 
+subdirectories "
+ls -L | find . -name "*.fa" -o -name "*.faa" -o -name "*.fna" -o -name "*.ffn" -o -name "*.frn"
+read -p "Reference : " ref
+ls -L | find . -name "*.fastq"
+echo "For a single read alignment, leave 'Read_2' empty and hit enter"
+read -p "Read_1 : " read_1
+read -p "Read_2 : " read_2
+clear
+echo "Select a name for your build, sortedbam, and vcf."
+read -p "BuildName : " build
+cmd="sort"
+if [ -r $ref ] ; then
+
+#Bwa mem alignment
+echo $ref | bwa index -a $ref
+echo $ref $read_1 $read_2 $build | bwa mem -M $ref $read_1 $read_2 > $build.sam
+echo $build | samtools view -bS $build.sam > $build.bam
+
+#GATK VCF:
+echo $ref | java -Djava.io.tmpdir=../../tmp -XX:ParallelGCThreads=16 -jar $dirpath/picard-tools-2.0.1/picard.jar CreateSequenceDictionary R= $ref O= $ref.dict
+echo $build | java -Djava.io.tmpdir=../../tmp -XX:ParallelGCThreads=16 -jar $dirpath/picard-tools-2.0.1/picard.jar AddOrReplaceReadGroups  INPUT= $build.sam OUTPUT= $build.fixed.sam RGID=1  RGLB= library1  RGPL=illumina RGPU=1  RGSM=sample1 SORT_ORDER=coordinate CREATE_INDEX=TRUE VALIDATION_STRINGENCY=LENIENT
+echo $build | rm $build.sam
+echo $build | java -Djava.io.tmpdir=../../tmp -XX:ParallelGCThreads=16 -jar $dirpath/picard-tools-2.0.1/picard.jar SortSam I= $build.fixed.sam  O= $build.fixed.sorted.bam SORT_ORDER=coordinate CREATE_INDEX=TRUE VALIDATION_STRINGENCY=LENIENT
+echo $build | rm $build.fixed.sam
+echo $ref $build | java -Djava.io.tmpdir=../../tmp -jar $dirpath/GenomeAnalysisTK.jar -nct 16 -T HaplotypeCaller -R $ref -I $build.fixed.sorted.bam -stand_call_conf 30 -stand_emit_conf 10 -o $build.gatk.vcf
+echo $build | rm $build.fixed.sorted.bam
+
+#Filtering based on Quality
+echo $build | vcftools --vcf $build.gatk.vcf --recode --recode-INFO-all --out $build.bwagatk --minQ 20.00
+echo $build | bcftools stats $build.bwagatk.recode.vcf > $build.filteredbwagatkvcf.txt
+echo $build | rm $build.gatk.vcf
+
+#Samtools VCF:
+echo $cmd $build | samtools $cmd $build.bam $build.sorted -@ 16
+echo $build | rm $build.bam
+echo $ref $build | samtools mpileup -uf $ref $build.sorted.bam | bcftools call -c > $build.bwasamtools.vcf
+echo $build | rm $build.sorted.bam
+
+#Filter
+echo $build | vcftools --vcf $build.bwasamtools.vcf --recode --recode-INFO-all --out $build.bwasamtools --minQ 20.00
+echo $build | bcftools stats $build.bwasamtools.recode.vcf > $build.filteredbwasamtoolsvcf.txt
+echo $build | rm $build.bwasamtools.vcf
+
+exit 0
+else 
+echo "Outputs missing and/or truncated, please verify inputs"
+exit 1
+fi
+
+;;
+
+	*) echo invalid option;;
+
+esac
+done
+	    ;;
+
+  "MutationLoad")
+
+echo "Select your canonical gene references (.fa), SnpEff library, and vcf."
+echo "Note: You may choose from the following files in this directory and/or 
+subdirectories "
+ls ../../snpEff/data/ 
+read -p "SnpEffLibrary : " lib
+ls -L | find . -name "*.vcf"
+read -p "Vcf : " vcf
+
+if [ -r $vcf ] ; then
+#Creates the database for the genome to be used
+echo $lib | java -Xmx20g -Djava.io.tmpdir=../../tmp -jar ../../snpEff/snpEff.jar build -gff3 $lib -c ../../snpEff/snpEff.config -t -v
+#Runs SNPEff
+echo $lib $vcf | java -Xmx20g -Djava.io.tmpdir=../../tmp -jar ../../snpEff/snpEff.jar -v -csvStats stats.csv $lib $vcf > $vcf.ann.vcf
+
+#Keeps only the 'Effect' column and count number of synonymous and non-synonymous SNPs.
+cat $vcf.ann.vcf | cut -f 8 | tr ";" "\n" | grep ^ANN= | cut -f 2 -d = | tr "," "\n" > temp.out
+#Synonymous SNPs
+grep -e synonymous_variant -e -start_retained -e stop_retained_variant temp.out | wc -l > temp2.out
+#Non-Synonymous SNPs
+grep -e missense_variant -e stop_gained -e stop_lost -e initiator_codon_variant -e start_lost temp.out | wc -l > temp3.out
+#Then adapt for upstream analysis (python config parser module
+sed -i '1s/^/non-synonymous_snp : /' temp3.out
+sed -i '1s/^/synonymous_snp : /' temp2.out
+rm temp.out 
+#Counts SNP syn and non-syn sites, parses SNPEff output, and concatenates them (for pyhton config parser)
+perl ../../KsKa.pl > temp.out
+
+cat temp.out temp3.out temp2.out > SNPStats.txt
+rm temp.out temp2.out temp3.out
+#Calculate pKa/Ks using Nei-Gojobori
+cat << EOF > pyscript.py
+#!/usr/bin/python
+#This short script uses the output values of KaKs.pl & SnpEff to calculate mutational load using Nei-Gojobori: pKa/Ks = [-3/4ln(1-4pn/3)] / [-3/4ln(1-4ps/3)], where ps = syn SNPs / syn sites and pn = nonsyn SNPs / nonsyn sites
+from math import log #If for some reason you need to calculate the logarithm of a negative number, import cmath instead.
+import ConfigParser
+
+config = ConfigParser.RawConfigParser()
+config.read("SNPStats.txt")
+nonSyn_site = float(config.get("myvars", "non-synonymous_number"))
+Syn_site = float(config.get("myvars", "synonymous_number"))
+nonSyn_SNP = float(config.get("myvars", "non-synonymous_snp"))
+Syn_SNP = float(config.get("myvars", "synonymous_snp"))
+
+pn = nonSyn_SNP/nonSyn_site
+ps = Syn_SNP/Syn_site
+
+print "The pKs/Ks ratio for this organism is:", (-3/4*log(1-(4*pn)/3))/(-3/4*log(1-(4*ps)/3))
+
+EOF
+
+chmod +x pyscript.py
+python pyscript.py > pKaKs.txt
+rm pyscript.py
+echo "Process complete, please verify 'pKaKs.txt'"
+exit 0
+else 
+echo "Input is missing and/or truncated"
+exit 1
+fi
+
             ;;
+
   "ToolBox")
 clear
 select tools in "${toolbox[@]}"
@@ -849,7 +1122,7 @@ done
 
            -Collaborators:
 
-                                                                 Version 1.2 
+                                                                 Version 1.4 
                   " 
             ;;
         "Quit")
