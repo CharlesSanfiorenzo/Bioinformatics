@@ -1,17 +1,9 @@
 #Help Manual
-            Note: Try to run this script in a screen.
-	   I. Gene Extraction
-             
-          This feature makes use of NCBI's Genbank annotated format files
-              (GBKs) to produce a multifasta file containing all ORF's
-              belonging to protein coding genes. 
-              ****************************************************************
-             -1) Collect genbank files belonging to an organism's chromosomes
-                 (if assigned); if unassigned, use the single GBK available 
-                 (Un). Concatenate all files into a single file.    
-             -2) Run MultiTool.sh w/ Extract option. This will output 
-                'LongestGenome.fa', containing all ORF's for all protein coding
-                 genes.  
+Note: Try to run this script in a screen.
+#I. Gene Extraction
+This feature makes use of NCBI's Genbank annotated format files (GBKs) to produce a multifasta file containing all ORF's belonging to protein coding genes. 
+-1) Collect genbank files belonging to an organism's chromosomes (if assigned); if unassigned, use the single GBK available (Un). Concatenate all files into a single file.    
+-2) Run MultiTool.sh w/ Extract option. This will output 'LongestGenome.fa', containing all ORF's for all protein coding genes.  
 
           II. Gene Copy Number Analysis
              -1) Run this script w/ Extract option.
