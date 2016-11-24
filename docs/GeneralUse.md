@@ -29,32 +29,13 @@ This feature will annotate the amount of aminoacids or codons in an organism's p
 2. Verify output: 'ProteomeSize.txt'.
 
 #VI. Base Counter
-Outputs amount of bases in individual or multifasta files. If you wish to determine the amount of bases per sequence in a multifasta file, please use 'Counter.pl'.
+Outputs amount of bases in individual or multifasta files. If you wish to determine the amount of bases per sequence in a multifasta file, please use 'counter.pl'.
 * Use:
-perl Counter.pl inputfile.fa > outputfile
+perl counter.pl inputfile.fa > outputfile
 
 #VI. SNP Calling
+Using fastq files & a reference fasta genome, this feature produces a quality-filtered VCF and a statistics file containing information related to the amount of SNPs and Indels in the organisms genome.
 
-         VII. PSMC Analysis
+#VII. Mutational Load
+This feature assays the amount of possible synonymous and non-synonymous sites in a gene's canonical coding sequence, as well as the amount of synonymous and non-synonymous SNPs in the coding regions of the raw sequence of the organism (we use snpEff for this last bit). These values are used to calculate the pKa/Ks ratio of the genome through the Nei-Gojobori method.
 
-            File Naming Protocol (Examples):
-               Reference: TP53.fa
-               BuildName: TP53
-               ResultsName: TP53Cov.txt
-               etc.
-               Other outputs will be named in accordance to the build.
-
-        VIII. Tool Box
-              A collection of tools for frequent tasks. Meant for
-              bigginers in the terminal!
-          
-
-                 More will be added soon!
-            
-         Authors 
-            Charles J. Sanfiorenzo Cruz 
-            Jenelys Ruiz Ortiz
-
-         Collaborators
-
-         Version 1.4
