@@ -13,6 +13,8 @@ This feature extracts a specific gene header and sequence from a mutifasta file.
 Using fastq files & a reference fasta, this option will output alignment rate, average coverage, and TS/TV ratio for the selected organism.
 
 Good Quality indicators for mammalian data
+
+Atribute | Results
 ------------ | -------------
 Alignment Rate | More than 90%
 Average Coverage| More than 12
