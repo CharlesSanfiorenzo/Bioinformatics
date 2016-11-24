@@ -40,6 +40,7 @@ If you'd like to make your own changes ensure your PR is made against the ['dev'
 - [x] Count number of bases for individual fasta or multifasta.
 - [x] Added a ToolBox to facilitate the lives of non-savvy terminal users (Read Documentation)
 - [x] SNP analysis based on output from Bowtie2 and Bwa-mem alignments coupled with SAMtools and GATK (w/ Piccard Tools) cross analysis.
+- [x] Assays Mutational Load by calculating pKa/Ks ratio using the Nei-Gojobori method.
 - [ ] PSMC Population Plot Analysis
 - [ ] Install batch for all required software tools.
 - [ ] GUI for Non-terminal users
@@ -56,3 +57,7 @@ If you'd like to make your own changes ensure your PR is made against the ['dev'
 
 ## Disclaimer
 This program takes advantage of a lot of software tools developed by many academic institutions. Make sure to cite their use in accordance to their policies!
+
+## Citation
+Sanfiorenzo C. J. & Ruiz J. (2016). MultiTool - A Bioinformatic Toolset [Computer Software]. 
+University of Puerto Rico Rio Rio Piedras. Retrieved from:  
