@@ -1,9 +1,8 @@
 #Help Manual
-            Note: Try to run this script in a screen!
-
-	       I. Gene Extraction
-              ****************************************************************
-              This feature makes use of NCBI's Genbank annotated format files
+            Note: Try to run this script in a screen.
+	   I. Gene Extraction
+             
+          This feature makes use of NCBI's Genbank annotated format files
               (GBKs) to produce a multifasta file containing all ORF's
               belonging to protein coding genes. 
               ****************************************************************
@@ -82,7 +81,7 @@
               bigginers in the terminal!
           
 
-                              More will be added soon!
+                 More will be added soon!
             
          Authors 
             Charles J. Sanfiorenzo Cruz 
@@ -90,4 +89,4 @@
 
          Collaborators
 
-         Version 1.2
+         Version 1.4
