@@ -10,6 +10,7 @@
  - [Feature Requests](#feature-requests)
  - [Pull Requests](#pull-requests)
 - [Features](#features)
+- [Requirements](#requirements)
 - [Authors](#authors)
 
 The project is currently setup in two main branches:
@@ -45,6 +46,22 @@ If you'd like to make your own changes ensure your PR is made against the ['dev'
 - [ ] Install batch for all required software tools.
 - [ ] GUI for Non-terminal users
 
+## Requirements
+* **Languages**
+ * Python 2.7 or Python 3+ : https://www.python.org/
+ * Perl : https://www.perl.org/get.html
+ * **If on Windows**
+   * Linux shell emulator : https://www.cygwin.com/
+    * GNU Packages : http://gnuwin32.sourceforge.net/
+* **Tools**
+ * Bowtie2 : http://bowtie-bio.sourceforge.net/bowtie2/index.shtml
+ * Bwa-mem : http://bio-bwa.sourceforge.net/
+ * SAMtools : http://samtools.sourceforge.net/
+ * VcfTools : https://vcftools.github.io/index.html
+ * Feature Extract (gb2tab) : http://www.cbs.dtu.dk/services/FeatureExtract/download.php 
+ * GATK : https://software.broadinstitute.org/gatk/
+ * Picard Tools : https://broadinstitute.github.io/picard/
+ * BBTools : https://sourceforge.net/projects/bbmap/
 
 ## Authors
 - [Charles Sanfiorenzo Cruz]() - charles.sanfiorenzo@upr.edu
