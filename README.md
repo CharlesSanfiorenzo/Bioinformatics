@@ -2,7 +2,7 @@
 
 
 ## Table of Contents
-- [Installation]()
+- [Installation](#installation)
 - [Documentation](https://github.com/CharlesSanfiorenzo/Bioinformatics/tree/master/docs/GeneralUse.md)
 - [Support](#support)
  - [Help](#configuration-issueshelp)
@@ -16,6 +16,11 @@
 The project is currently setup in two main branches:
 - `dev` also known as `beta` - This is where new features are tested; users may experience some issues. Dev branch repository may be found [here]()
 - `master` also known as `stable`   
+
+## Installation
+
+To install, simply download all of the listed requirements and install them onto a user created directory (e.g. 'BioinformaticTools').
+Then download this repository and change the path variable within 'MultiTool.sh' to the location of the directory containing the requirements. In Unix systems you could use gedit (Genome Editor) or the vi editor, but in Windows you could do this by opening 'MultiTool.sh' with the Notepad app.
 
 ## Support
 
