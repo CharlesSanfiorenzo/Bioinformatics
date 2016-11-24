@@ -59,5 +59,4 @@ If you'd like to make your own changes ensure your PR is made against the ['dev'
 This program takes advantage of a lot of software tools developed by many academic institutions. Make sure to cite their use in accordance to their policies!
 
 ## Citation
-Sanfiorenzo C. J. & Ruiz J. (2016). MultiTool - A Bioinformatic Toolset [Computer Software]. 
-University of Puerto Rico Rio Rio Piedras. Retrieved from:  
+Sanfiorenzo C. J. & Ruiz J. (2016). MultiTool - A Bioinformatic Toolset [Computer Software]. University of Puerto Rico Rio Rio Piedras. Retrieved from: https://github.com/CharlesSanfiorenzo/Bioinformatics.git
