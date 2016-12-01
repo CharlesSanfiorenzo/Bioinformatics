@@ -42,6 +42,7 @@ If you'd like to make your own changes ensure your PR is made against the ['dev'
 - [x] Calculates gene copy numbers based on depth of coverage results from Bowtie2 alignments (Avg. Cov. & Stdev)
 - [x] Find and extract sequences w/ header from a multifasta based on header patterns (e.g. Gene name)
 - [x] Test reads for quality based on alignment rate, Avg. Depth of Cov & Stdev, and TS/TV. 
+- [x] Filters reads using quality scores and read length 
 - [x] Calculate Proteome Size from a Proteomic or Transcriptomic Genbank file.
 - [x] Count number of bases for individual fasta or multifasta.
 - [x] Added a ToolBox to facilitate the lives of non-savvy terminal users (Read Documentation)
@@ -67,6 +68,7 @@ If you'd like to make your own changes ensure your PR is made against the ['dev'
  * GATK : https://software.broadinstitute.org/gatk/
  * Picard Tools : https://broadinstitute.github.io/picard/
  * BBTools : https://sourceforge.net/projects/bbmap/
+ * PrinSeq : http://prinseq.sourceforge.net/
 
 ## Authors
 - [Charles Sanfiorenzo Cruz]() - charles.sanfiorenzo@upr.edu
