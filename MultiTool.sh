@@ -517,7 +517,7 @@ read -p "Minimum Quality Left: " minqual_left
 read -p "Minimum Quality Right: " minqual_right
 read -p "Minimum Length : " minlength
 if [ -r $read ] ; then
-perl $path/prinseq-lite-0.20.4/prinseq-lite.pl -fastq $read -trim_qual_right $minqual_right -trim_qual_lef $minqual_left -min_len $minlength -out_good $read.filtered
+perl $dirpath/prinseq-lite-0.20.4/prinseq-lite.pl -fastq $read -trim_qual_right $minqual_right -trim_qual_lef $minqual_left -min_len $minlength -out_good $read.filtered
 else 
 echo "$read is missing or truncated"
 fi
@@ -530,7 +530,7 @@ read -p "Minimum Quality Left: " minqual_left
 read -p "Minimum Quality Right: " minqual_right
 read -p "Minimum Length : " minlength
 if [ -r $read_1 ] && [ -r $read_2 ] ; then
-perl $path/prinseq-lite-0.20.4/prinseq-lite.pl -fastq $read_1 -fastq2 $read_2 -trim_qual_right $minqual_right -trim_qual_lef $minqual_left -min_len $minlength -out_good filtered
+perl $dirpath/prinseq-lite-0.20.4/prinseq-lite.pl -fastq $read_1 -fastq2 $read_2 -trim_qual_right $minqual_right -trim_qual_lef $minqual_left -min_len $minlength -out_good filtered
 else 
 echo "$read_1 and $read_2 are missing or truncated"
 fi
