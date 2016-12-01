@@ -506,7 +506,7 @@ fi
 esac
 done
 	   ;;
- "Read Filter")
+ "ReadFilter")
 select subopt in "${suboptions[@]}"
 do
     case $subopt in
