@@ -982,15 +982,25 @@ cat $vcf.ann.vcf | cut -f 8 | tr ";" "\n" | grep ^ANN= | cut -f 2 -d = | tr "," 
 grep -e synonymous_variant -e -start_retained -e stop_retained_variant temp.out | wc -l > temp2.out
 #Non-Synonymous SNPs
 grep -e missense_variant -e stop_gained -e stop_lost -e initiator_codon_variant -e start_lost temp.out | wc -l > temp3.out
+#High impact
+grep -e HIGH temp.out | wc -l > temp4.out
+#Low impact
+grep -e LOW temp.out | wc -l > temp5.out
+#Moderate impact
+grep -e MODERATE temp.out | wc -l > temp6.out
+
 #Then adapt for upstream analysis (python config parser module
 sed -i '1s/^/non-synonymous_snp : /' temp3.out
 sed -i '1s/^/synonymous_snp : /' temp2.out
+sed -i '1s/^/HighImpact : /' temp4.out
+sed -i '1s/^/LowImpact : /' temp5.out
+sed -i '1s/^/ModerateImpact : /' temp6.out
 rm temp.out 
 #Counts SNP syn and non-syn sites, parses SNPEff output, and concatenates them (for pyhton config parser)
 perl ../../KsKa.pl > temp.out
 
-cat temp.out temp3.out temp2.out > SNPStats.txt
-rm temp.out temp2.out temp3.out
+cat temp.out temp3.out temp2.out temp4.out temp5.out temp6.out > SNPStats.txt
+rm temp.out temp2.out temp3.out temp4.out temp5.out temp6.out
 #Calculate pKa/Ks using Nei-Gojobori
 cat << EOF > pyscript.py
 #!/usr/bin/python
