@@ -1022,9 +1022,9 @@ pn = nonSyn_SNP/nonSyn_site
 ps = Syn_SNP/Syn_site
 
 print "The pKs/Ks ratio for this organism is:", (-3/4*log(1-(4*pn)/3))/(-3/4*log(1-(4*ps)/3))
-print "High Impact Percentage:", (HighImp/(HighImp+LowImp+ModImp))
-print "Moderate Impact Percentage:", (ModImp/(HighImp+LowImp+ModImp))
-print "Low Impact Percentage:", (LowImp/(HighImp+LowImp+ModImp))
+print "High Impact Percentage:", (HighImp*100/(HighImp+LowImp+ModImp))
+print "Moderate Impact Percentage:", (ModImp*100/(HighImp+LowImp+ModImp))
+print "Low Impact Percentage:", (LowImp*100/(HighImp+LowImp+ModImp))
 print "Impact average:", (HighImp*3/((HighImp*3)+(LowImp)+(ModImp*2)))
 
 EOF
