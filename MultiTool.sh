@@ -988,6 +988,9 @@ grep -e HIGH temp.out | wc -l > temp4.out
 grep -e LOW temp.out | wc -l > temp5.out
 #Moderate impact
 grep -e MODERATE temp.out | wc -l > temp6.out
+#Protein Coding Count
+grep -e protein_coding temp.out | wc -l > temp7.out
+
 
 #Then adapt for upstream analysis (python config parser module
 sed -i '1s/^/non-synonymous_snp : /' temp3.out
@@ -995,12 +998,13 @@ sed -i '1s/^/synonymous_snp : /' temp2.out
 sed -i '1s/^/HighImpact : /' temp4.out
 sed -i '1s/^/LowImpact : /' temp5.out
 sed -i '1s/^/ModerateImpact : /' temp6.out
+sed -i '1s/^/Protein coding SNPs : /' temp7.out
 rm temp.out 
 #Counts SNP syn and non-syn sites, parses SNPEff output, and concatenates them (for pyhton config parser)
 perl ../../KsKa.pl > temp.out
 
-cat temp.out temp3.out temp2.out temp4.out temp5.out temp6.out > SNPStats.txt
-rm temp.out temp2.out temp3.out temp4.out temp5.out temp6.out
+cat temp.out temp3.out temp2.out temp4.out temp5.out temp6.out temp7.out > SNPStats.txt
+rm temp.out temp2.out temp3.out temp4.out temp5.out temp6.out temp7.out
 #Calculate pKa/Ks using Nei-Gojobori
 cat << EOF > pyscript.py
 #!/usr/bin/python
