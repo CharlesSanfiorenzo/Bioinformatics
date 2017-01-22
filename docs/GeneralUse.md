@@ -32,12 +32,12 @@ This feature will annotate the amount of aminoacids or codons in an organism's p
 Outputs amount of bases in individual or multifasta files. If you wish to determine the amount of bases per sequence in a multifasta file, please use 'counter.pl'.
 * Use: perl counter.pl inputfile.fa > outputfile
 
-#VI. SNP Calling
+#VII. SNP Calling
 Using fastq files & a reference fasta genome, this feature produces a quality-filtered VCF and a statistics file containing information related to the amount of SNPs and Indels in the organisms genome.
 * Input: fastq files, reference genome assembly (fasta)
 * Output: Filtered VCF, VCF statistics file
 
-#VI. Mutational Load
+#VIII. Mutational Load
 This feature assays the amount of possible synonymous and non-synonymous sites in a gene's canonical coding sequence, as well as the amount of synonymous and non-synonymous SNPs in the coding regions of the raw sequence of the organism (we use snpEff for this last bit). These values are used to calculate the polymorphic Ka/Ks ratio of the genome through the Nei-Gojobori method.
 * Input: Filtered VCF, snpEff Library
 * Output: SNPStats.txt (SNP site and occurance info), pKa/Ks.txt (polymorphic Ka/Ks)
