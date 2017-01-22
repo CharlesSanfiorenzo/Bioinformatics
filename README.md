@@ -3,6 +3,7 @@
 
 ## Table of Contents
 - [Installation](#installation)
+- [General Usage](#general-usage)
 - [Documentation](https://github.com/CharlesSanfiorenzo/Bioinformatics/tree/master/docs/GeneralUse.md)
 - [Support](#support)
  - [Help](#configuration-issueshelp)
@@ -21,6 +22,34 @@ The project is currently setup in two main branches:
 
 To install, simply download all of the listed requirements and install them onto a user created directory (e.g. 'BioinformaticTools').
 Then download this repository and change the path variable within 'MultiTool.sh' to the location of the directory containing the requirements. In Unix systems you could use gedit (Genome Editor) or the vi editor, but in Windows you could do this by opening 'MultiTool.sh' with the Notepad app.
+
+## General Usage
+
+Run MultiTool.sh and a menu will pop up:
+
+    $ ./MultiTool.sh 
+    1) Extract         4) ReadQuality    7) BaseCounter   10) ToolBox
+    2) GeneCopies      5) ReadFilter     8) SNPCalling    11) Help
+    3) FindGene        6) ProteomeSize   9) MutationLoad  12) Quit
+    Enter your choice (use number):
+    Enter your choice (use number): 8
+    1) Bowtie2
+    2) Bwa-mem
+    Enter your choice (use number): 1
+    1) SingleRead
+    2) ReadPair
+    Enter your choice (use number): 2
+    Select your reference (.fna) and read (.fastq) files; include path.
+    Note: You may choose from the following files in this directory and/or 
+    subdirectories 
+    #Fasta list will show here!
+    Reference :
+    #Fastq list will show here!
+    Read_1 : 
+    Read_2 : 
+    And so on ... :)
+
+For information about each individual feature, please read the documentation.
 
 ## Support
 
