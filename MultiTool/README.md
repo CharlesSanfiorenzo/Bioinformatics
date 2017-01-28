@@ -4,7 +4,7 @@
 ## Table of Contents
 - [Installation](#installation)
 - [General Usage](#general-usage)
-- [Documentation](https://github.com/CharlesSanfiorenzo/Bioinformatics/MultiTool/tree/master/docs/GeneralUse.md)
+- [Documentation](https://github.com/CharlesSanfiorenzo/Bioinformatics/blob/master/MultiTool/docs/GeneralUse.md)
 - [Support](#support)
  - [Help](#configuration-issueshelp)
  - [Bugs](#bugs--issues)
