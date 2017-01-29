@@ -27,12 +27,17 @@ and ![equation](https://wikimedia.org/api/rest_v1/media/math/render/svg/36c39659
 From this it becomes quite obvious that the most important factor in this mathematical approach is determining a 'good enough' value for ![equation](https://wikimedia.org/api/rest_v1/media/math/render/svg/36c396599916ca276daed739acd8df48718641cb).
 But how can we measure a value for ![equation](https://wikimedia.org/api/rest_v1/media/math/render/svg/36c396599916ca276daed739acd8df48718641cb), and when (or how) do we deem values as 'good enough' (i.e. empirically acceptable)?
 One approach used in the past to assay increase or decrease in gene expression based on TF binding consists in the use of Mixed Interger Linear Programming (MILP) models that produce Steiner trees of biochemical signalling networks in order to find transcriptional patterns of interest.
-Combining this approach with a learning model that considers previously observed effects in target genes (i.e. 1 for increase in transcription, 0 for decrease in transcription) offers a rough estimate of the overall effects in promoter activity due to succesful individual promoter-TF binding events.  
+Combining this approach with a learning model that considers previously observed effects in target genes (i.e. 1 for increase in transcription, 0 for decrease in transcription) offers a rough estimate of the overall effects in promoter activity due to succesful individual promoter-TF binding events. Activity percentages obtained experimentally can be added as training datasets for specific pathways, increasing model accuracy, and increasing the likelyhood of the output being a good representative for ![equation](https://wikimedia.org/api/rest_v1/media/math/render/svg/36c396599916ca276daed739acd8df48718641cb). By providing location extent of promoter TF binding sites, a penalty may be added for an inferred Hamming Distance with different weights for dissimilar and similar base changes respectively. Finally, we would calculate the RNA Polymerase-promoter binding probability using the formula stated above. Learning to increase or decrease this binding probability is of significant importance for the design of artificial molecular pathways, and could one day soon lead to breakthroughs in cell state correction. 
+
+For now this project is closed off to the public, as this approach needs more testing with experimental results. Sample code is available on request.
 
 ## Databases
+- Transcription Factor Effects : [MetaCore](https://lsresearch.thomsonreuters.com/pages/solutions/1/metacore)
+- Promoter Sequences in Eukaryotes : [EPD](  http://epd.vital-it.ch) 
 
 ## Author
 - [Charles Sanfiorenzo Cruz]() - charles.sanfiorenzo@upr.edu
 
 ## References
 -  Bintu, L.; Buchler, N; Garcia, H; Gerland, U et al. (2005). "Transcriptional regulation by the numbers: models". Current Opinion in Genetics & Development. 15: 116–124
+-  Schacht, T.; Oswald M.; Eils R.; Eichmüller, S.; König, R. (2014). "Estimating the activity of transcription factors by the effect on their target genes". Bioinformatics 30(17): i401-i407 
