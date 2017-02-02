@@ -33,9 +33,35 @@ Outputs amount of bases in individual or multifasta files. If you wish to determ
 * Use: perl counter.pl inputfile.fa > outputfile
 
 #VII. SNP Calling
-Using fastq files & a reference fasta genome, this feature produces a quality-filtered VCF and a statistics file containing information related to the amount of SNPs and Indels in the organisms genome.
+Using fastq files & a reference fasta genome, this feature produces a quality-filtered VCF and a statistics file containing information related to the amount of SNPs and Indels in the organisms genome. 
 * Input: fastq files, reference genome assembly (fasta)
 * Output: Filtered VCF, VCF statistics file
+
+Walkthrough 
+
+If one wishes to determine single nucleotide polymorphisms (SNPs) within a particular region of a genome (e.g. a gene), or accross the whole genome itself, having a curated SNP Calling pipeline is ultimately necessary for producing accurate inferences. However, the amount and identity of the SNPs called depend heavily on the quality of your data set. If not sure how to test read quality, please refer to part IV. The following snippet will illustrate how a curated SNP calling pipeline looks, in accordance to Broad Institute's guidelines<sup>[1]</sup> using Bowtie2 as our aligner and SAMtools mpileup as our variant caller :
+
+    #Index genome to a Bowtie2 build (provides fast access to genome information)
+    bowtie2-build GenomeAssembly.fna BuildName
+    #Align sequenced data (reads) to build using Bowtie2
+    bowtie2 -x BuildName -1 read_1 -2 read_2 --threads 16 -S BuildName.sam
+    #Convert from sam format to bam format (bam is the binary version of a bam -> occupies less space, fast random access)
+    samtools view -bS BuildName.sam -@ 16 > BuildName.bam
+    #Sort bam file concordantly using SAMtools
+    samtools sort BuildName.bam BuildName.sorted -@ 16
+    #Mark and remove duplicates in the alignment using Piccardtools
+    java -XX:ParallelGCThreads=16 -jar picard.jar MarkDuplicates INPUT=BuildName.sorted.bam OUTPUT=NoDup.bam METRICS_FILE=metrics.txt REMOVE_DUPLICATES=true VALIDATION_STRINGENCY=LENIENT
+    #Define indel intervals using GATK (for realignment, seen in next step)
+    java -XX:ParallelGCThreads=16 -jar GenomeAnalysisTK.jar -T RealignerTargetCreator -R Genome.fna -I NoDup.bam -o Intervals.txt
+    #Realign against indels using GATK
+    java -XX:ParallelGCThreads=16 -jar GenomeAnalysisTK.jar -T IndelRealigner -R Genome.fa -I NoDup.bam -targetIntervals Intervals.txt -o NoDupRealigned.bam
+    #Call SNPs (variants) using SAMtools mpileup
+    samtools mpileup -uf Genome.fa NoDupRealigned.bam | bcftools call -c > BuildName.vcf
+    #Filter VCF based on BAQ or SNP depth using VCFtools
+    vcftools --vcf BuildName.vcf --recode --recode-INFO-all --out BuildName --minQ 20.00 
+    #Produce statistics for the VCF 
+    bcftools stats BuildName.recode.vcf > BuildNameFilteredVCFStats.txt
+
 
 #VIII. Mutational Load
 This feature assays the amount of possible synonymous and non-synonymous sites in a gene's canonical coding sequence, as well as the amount of synonymous and non-synonymous SNPs in the coding regions of the raw sequence of the organism (we use snpEff for this last bit). These values are used to calculate the polymorphic Ka/Ks ratio of the genome through the Nei-Gojobori method.
