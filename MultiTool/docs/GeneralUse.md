@@ -64,7 +64,7 @@ If one wishes to determine single nucleotide polymorphisms (SNPs) within a parti
 Before explaining each of the steps listed in the code above, it's important to understand the software options available for alignments and variant calling. We are using Bowtie2 as our aligner and Samtools mpileup as our variant caller in this example, but a large group of researchers tend to use Bwa-mem for alignments and GATK's Haplotype caller to call for variants. The decision to choose between Bowtie2 and Bwa-mem, or Samtools mpileup and GATK's Haplotype caller is arbitrary, although GATK standarized variant calls are optomized for human genomes. Nonetheless, Bowtie2 and Samtools mpileup mash-ups have been favored more often in recent publications. If unsure, this script allows one to run alignments and variant calls combinatorially for comparison purposes.
 
 ####A. Index genome
-Most aligners require indexing of the reference sequence in order to increase aligning and processing speed. Standard procedure for Bowtie2 and Bwa-mem.
+Most aligners require indexing of the reference sequence in order to increase aligning and processing speed. The reference sequence belongs to a healthy individual, and is used as the norm for sequence comparison. This is a standard procedure for Bowtie2 and Bwa-mem.
 ####B. Alignment
 Alignment between sequenced data and a reference sequence. Usually a genome assembly is used as the reference sequence, as chromosome scaffolds or individual gene sequences lead to biased variant calls due to forced alignments. Default parameters in most alignment tools are ideal, unless the intended analysis consists of comparing sequences belonging to two different species; localized and sensitive parameters are preferred for the latter.
 ####C. Sam to bam conversion
@@ -72,7 +72,40 @@ This step can be integrated into the alignment if needed. Having a binary and co
 ####D. Sorting a bam file concordantly
 Most downstream analysis tools require for bam files to be sorted. This allows easier access to compressed annotations.
 ####E. Marking and removing duplicates
+In WGS, sometimes reads map multiple times to a single region in the genome. This is particularly true for sequences that were amplified through PCR using low complexity libraries. We can remove duplicate alignments with Piccardtools; average coverage fold of reads should be re-calculated again after this step if evaluating a whole genome.
 
+Note: This step should be skipped for RNAseq studies, as it is expected for reads to map multiple times to particular reference sequences (due to expression levels).
+####F. Determine indel intervals for realignment
+All algorithms used for alignment have problems with aligned sequences close to regions identified as possible indels. To improve the accuracy of our calls in Step H, coordinates for indel sites are annotated in this step and reassessed in the next step.
+
+Note: Indel realignment steps may be skipped when using GATK's Haplotype caller or any variant caller that performs a haplotype assembly step.
+####G. Realignment around the indels
+Using the indel coordinates produced in the previous step, GATK realigns sequences against indels to determine if the annotated indel is truly an indel, in this way fixing alignments that may have been originally considered mismatches accross reads. If the data set belongs to an organism that has lists of known SNPs available, one may also perform an additional step consisting of base quality score recalibration (i.e. if the SNP is reported both in the list and the alignment, the certainty of the reported SNP increases).
+
+####H. Variant calling
+SNPs and indels are annotated formally in this step. If a particular region of the genome was amplified, one may offer a set of coordinates for the variant caller to use. This lowers processing time exponentially.
+
+Example:
+     
+    samtools mpileup -r 1:860-1000 -uf Genome.fa NoDupRealigned.bam | bcftools call -c > BuildName.vcf
+    
+where -r is the region consisting of chromosome#:bpLowerRange-bpUpperRange,
+-u is uncompressed,
+and -f is the reference file (e.g. assembly, canonical gene sequence, etc).
+
+####I. VCF Filtering
+In order to remove calls with low certainty (low BAQ, low Q, and/or low SNP depth) from the analys. Usually Q and BAQ values above 20 (less than 1/10<sup>2</sup> chance of being an incorrect call/alignment respectively) are excellent, so this value may be used as a minimum treshold. Some articles in the literature suggest that SNPs with depth with over 1/3 of the average SNP depth be kept, but this is completely dependant on the type of sequencing and analysis one is doing.
+
+Oh, and for future reference:
+
+- Q = Phred quality score (certainty that a base call during sequencing is correct)
+- BAQ = Base alignment quality (certainty that an alignment between two bp is correct, depends on neighboring sequences)
+
+####Bonus Step
+One can assess the possible phenotypic impact of SNPs in coding and regulatory regions by running snpEff using a VCF file. snpEff takes into account synonymous and non-synonymous changes in codons, as well as similarity and dissimilarity between the resulting amino acid residues if the gene is protein coding. Loss or addition of start and stop codons is also evaluated.
+
+####One final note: 
+Targeted Next-Generation Sequencing (tNGS) is considered a fast & cost-effective method to detect multiple mutations simultaneously in regions of interest. While it may seem like a good idea for studies involving particular mutations in regulatory regions or genes, the accuracy of the sequencing procedure may contribute to problems during alignment steps if using a genome assembly as reference rather than the canonical sequence of the targeted gene or regulatory region. The more one knows about the sequences around our target, the better we can identify it visually - the same applies for alignment algorithms. A caveat around this would be cloning our target sequence, doing a whole-genome sequencing run with our sample, doing multiple tNGS runs with our target, and then comparing SNP statistics within that region and analyzing the alignments visually using IGV.
 
 ##VIII. Mutational Load
 This feature assays the amount of possible synonymous and non-synonymous sites in a gene's canonical coding sequence, as well as the amount of synonymous and non-synonymous SNPs in the coding regions of the raw sequence of the organism (we use snpEff for this last bit). These values are used to calculate the polymorphic Ka/Ks ratio of the genome through the Nei-Gojobori method.
