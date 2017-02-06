@@ -9,17 +9,30 @@ Run this script w/ Extract option, but keep only canonical sequences. Parse the 
 ##III. Find Gene
 This feature extracts a specific gene header and sequence from a mutifasta file. Run this script w/ Extract option. When prompted, use the fasta output from the Extract option as input; specify the gene of interest. Inclusive mode will keep all genes with similar names, and exclusive mode will keep the gene named with the regular expression given.
 
-##IV. Read Quality Test
-Using fastq files & a reference fasta, this option will output alignment rate, average coverage, and TS/TV ratio for the selected organism.
+##IV. Read Quality Test for WGS
+Using fastq files & a reference fasta, this option will output alignment rate, average coverage, and Ts/Tv ratio for the selected organism. 
 
-Good Quality indicators for genomic mammalian data
+Note: Only FastQC screening is needed to test for quality for tNGS methods, as multiple sequencing runs over the same target increase validity of base calls.
 
-Atribute | Results
+###Walkthrough
+
+Reads are the raw output of a sequencing machine. They need to be tested for quality, in order to determine whether re-sequencing is necessary. Before using this option, reads should be screened with the use of FastQC. If evaluating WGS, GC content of the reads should be close or equal to GC content in the genome assembly and should follow a Gaussian distribution. All reads should follow Chargaff's rule (seen in content per base section of FastQC), as strands have a 1:1 sequencing probability. Average Quality should always be above 20, and length per read should follow a Triangular distribution unless they were trimmed post-sequencing. If sequenced reads have a decent coverage fold of the genome, filtering reads is preferred over trimming.
+
+[This](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/good_sequence_short_fastqc.html#M0) is how good quality reads look like in general when screened with FastQC.
+
+However, for WGS, screening with FastQC is not enough. Once we are sure we have what appear to be good quality reads, we must perform a second screening after alignment steps...
+
+Good Quality indicators for WGS mammalian data (post-alignment)
+
+Attribute | Results
 ------------ | -------------
 Alignment Rate | More than 90%
 Average Coverage| More than 12
-TS/TV Ratio | Higher than or close to 2.1
+Ts/Tv Ratio | Higher than or close to 2.1
 
+For all whole-genome studies, no matter the class of the sampled organism, Ts/Tv should be close to or above 2.0. Values below 1 seem to be related to the introduction of random sequencing errors, which bypass initial FastQC screenings. These errors can be observed when binning the Ts/Tv over the whole genome. Also, random sequencing errors greatly increase the number of indels reported, and reduce the number of SNPs reported (there is a reason for this, see Part VII, section G below). Protein coding percentage and CpG Island spans in the genome positively correlate with Ts/Tv (this is due to the often methylated cytosines in CpG dinucleotides and overall probability of isochore formation), so there should be a trend when comparing the Ts/Tv's of different species.
+
+Another indicator of good quality is the pKaKs ratio. Random sequencing errors skew the value for pKaKs close to 1 (i.e. neutral), which is not possible. A pKaKs ratio of 1 implies that no change is occurring at a species level (i.e. it goes against the concepts behind evolution). All species have a fixed pKaKs, even when selective pressures are added into the mix. Hence, assessing and comparing this value for the organism that one is studying provides an additional quality assessment layer for WGS. 
 
 ##V. Proteome Size
 This feature will annotate the amount of aminoacids or codons in an organism's proteome by using sequences stored in Genbank or RefSeq files. It will also count the headers (amount of protein coding genes annotated).
@@ -39,7 +52,7 @@ Using fastq files & a reference fasta genome, this feature produces a quality-fi
 
 ###Walkthrough 
 
-If one wishes to determine single nucleotide polymorphisms (SNPs) within a particular region of a genome (e.g. a gene), or accross the whole genome itself, having a curated SNP Calling pipeline is ultimately necessary for producing accurate inferences. However, the amount and identity of the SNPs called depend heavily on the quality of your data set. If not sure how to test read quality, please refer to part IV. The following snippet will illustrate how a curated SNP calling pipeline looks, in accordance to Broad Institute's guidelines<sup>[1]</sup> for WGS :
+If one wishes to determine single nucleotide polymorphisms (SNPs) within a particular region of a genome (e.g. a gene), or accross the whole genome itself, having a curated SNP Calling pipeline is ultimately necessary for producing accurate inferences. However, the amount and identity of the SNPs called depend heavily on the quality of your data set. If not sure how to test read quality, please refer to part IV. The following snippet will illustrate how a curated SNP calling pipeline looks, in accordance to [Broad Institute's guidelines](https://software.broadinstitute.org/gatk/best-practices/) for WGS :
 
     # A. Index genome to a Bowtie2 build (provides fast access to genome information)
     bowtie2-build GenomeAssembly.fna BuildName
@@ -80,7 +93,7 @@ All algorithms used for alignment have problems with aligned sequences close to 
 
 Note: Indel realignment steps may be skipped when using GATK's Haplotype caller or any variant caller that performs a haplotype assembly step.
 ####G. Realignment around the indels
-Using the indel coordinates produced in the previous step, GATK realigns sequences against indels to determine if the annotated indel is truly an indel, in this way fixing alignments that may have been originally considered mismatches accross reads. If the data set belongs to an organism that has lists of known SNPs available, one may also perform an additional step consisting of base quality score recalibration (i.e. if the SNP is reported both in the list and the alignment, the certainty of the reported SNP increases).
+Using the indel coordinates produced in the previous step, GATK realigns sequences against indels to determine if the annotated indel is truly an indel, in this way fixing alignments that may have been originally considered mismatches accross large regions of the reads. If the data set belongs to an organism that has lists of known SNPs available, one may also perform an additional step consisting of base quality score recalibration (i.e. if the SNP is reported both in the list and the alignment, the certainty of the reported SNP increases).
 
 ####H. Variant calling
 SNPs and indels are annotated formally in this step. If a particular region of the genome was amplified, one may offer a set of coordinates for the variant caller to use. This lowers processing time exponentially.
