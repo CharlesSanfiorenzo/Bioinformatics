@@ -62,7 +62,7 @@ If one wishes to determine single nucleotide polymorphisms (SNPs) within a parti
     samtools view -bS BuildName.sam -@ 16 > BuildName.bam
     # D. Sort bam file concordantly using SAMtools
     samtools sort BuildName.bam BuildName.sorted -@ 16
-    # E. Mark and remove duplicates in the alignment using Piccardtools
+    # E. Mark and remove duplicates in the alignment using Picardtools
     java -XX:ParallelGCThreads=16 -jar picard.jar MarkDuplicates INPUT=BuildName.sorted.bam OUTPUT=NoDup.bam METRICS_FILE=metrics.txt REMOVE_DUPLICATES=true VALIDATION_STRINGENCY=LENIENT
     # F. Define indel intervals using GATK (for realignment, seen in next step)
     java -XX:ParallelGCThreads=16 -jar GenomeAnalysisTK.jar -T RealignerTargetCreator -R Genome.fna -I NoDup.bam -o Intervals.txt
@@ -85,13 +85,15 @@ This step can be integrated into the alignment if needed. Having a binary and co
 ####D. Sorting a bam file concordantly
 Most downstream analysis tools require for bam files to be sorted. This allows easier access to compressed annotations.
 ####E. Marking and removing duplicates
-In WGS, sometimes reads map multiple times to a single region in the genome. This is particularly true for sequences that were amplified through PCR using low complexity libraries. We can remove duplicate alignments with Piccardtools; average coverage fold of reads should be re-calculated again after this step if evaluating a whole genome.
+In WGS, sometimes reads map multiple times to a single region in the genome. This is particularly true for sequences that were amplified through PCR using low complexity libraries. We can remove duplicate alignments with Picardtools; average coverage fold of reads should be re-calculated again after this step if evaluating a whole genome.
 
-Note: This step should be skipped for RNAseq studies, as it is expected for reads to map multiple times to particular reference sequences (due to expression levels).
+Note: This step should be skipped for RNAseq studies, as it is expected for reads to map multiple times to particular reference sequences (due to expression levels). 
+
 ####F. Determine indel intervals for realignment
 All algorithms used for alignment have problems with aligned sequences close to regions identified as possible indels. To improve the accuracy of our calls in Step H, coordinates for indel sites are annotated in this step and reassessed in the next step.
 
 Note: Indel realignment steps may be skipped when using GATK's Haplotype caller or any variant caller that performs a haplotype assembly step.
+
 ####G. Realignment around the indels
 Using the indel coordinates produced in the previous step, GATK realigns sequences against indels to determine if the annotated indel is truly an indel, in this way fixing alignments that may have been originally considered mismatches accross large regions of the reads. If the data set belongs to an organism that has lists of known SNPs available, one may also perform an additional step consisting of base quality score recalibration (i.e. if the SNP is reported both in the list and the alignment, the certainty of the reported SNP increases).
 
