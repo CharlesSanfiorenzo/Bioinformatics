@@ -109,7 +109,7 @@ where -r is the region consisting of chromosome#:bpLowerRange-bpUpperRange,
 and -f is the reference file (e.g. assembly, canonical gene sequence, etc).
 
 ####I. VCF Filtering
-In order to remove calls with low certainty (low BAQ, low Q, and/or low SNP depth) from the analys. Usually Q and BAQ values above 20 (less than 1/10<sup>2</sup> chance of being an incorrect call/alignment respectively) are excellent, so this value may be used as a minimum treshold. Some articles in the literature suggest that SNPs with depth over 1/3 of the average SNP depth be kept, but this is completely dependant on the type of sequencing and analysis one is doing.
+In order to remove calls with low certainty (low BAQ, low Q, and/or low SNP depth) from the analysis, we need to filter the VCF. Usually Q and BAQ values above 20 (less than 1/10<sup>2</sup> chance of being an incorrect call/alignment respectively) are excellent, so this value may be used as a minimum treshold. Some articles in the literature suggest that SNPs with depth over 1/3 of the average SNP depth be kept, but this is completely dependant on the type of sequencing and analysis one is doing.
 
 Oh, and for future reference:
 
