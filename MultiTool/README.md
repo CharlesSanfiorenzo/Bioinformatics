@@ -56,14 +56,14 @@ For information about each individual feature, please read the documentation.
 ### Configuration issues/help
 If you need any help please contact one of the [authors](#authors) via email.
 
-###[Bugs / Issues](https://github.com/CharlesSanfiorenzo/Bioinformatics/issues)
+### [Bugs / Issues](https://github.com/CharlesSanfiorenzo/Bioinformatics/issues)
 If you discover a bug in the script, please [create a new issue](https://github.com/CharlesSanfiorenzo/Bioinformatics/issues/new).
 
-###[Feature Requests](https://github.com/CharlesSanfiorenzo/Bioinformatics/labels/Feature%20Request)
+### [Feature Requests](https://github.com/CharlesSanfiorenzo/Bioinformatics/labels/Feature%20Request)
 If you have a feature you would like added, please [create a new request](https://github.com/CharlesSanfiorenzo/Bioinformatics/issues/new).
 
 
-###[Pull Requests]()
+### [Pull Requests]()
 If you'd like to make your own changes ensure your PR is made against the ['dev']() branch.
 
 ## Features
