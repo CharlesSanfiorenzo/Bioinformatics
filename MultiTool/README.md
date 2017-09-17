@@ -73,34 +73,33 @@ If you'd like to make your own changes ensure your PR is made against the ['dev'
 - [x] Test reads for quality based on alignment rate, Avg. Depth of Cov & Stdev, and TS/TV. 
 - [x] Filters reads using quality scores and read length 
 - [x] Calculate Proteome Size from a Proteomic or Transcriptomic Genbank file.
-- [x] Count number of bases for individual fasta or multifasta.
-- [x] Added a ToolBox to facilitate the lives of non-savvy terminal users (Read Documentation)
+- [x] Count number of bases and run statistics (e.g. GC Content) for individual fasta or multifasta.
 - [x] SNP analysis based on output from Bowtie2 and Bwa-mem alignments coupled with SAMtools and GATK (w/ Piccard Tools) cross analysis.
 - [x] Assays Mutational Load by calculating pKa/Ks ratio using the Nei-Gojobori method.
-- [ ] PSMC Population Plot Analysis
+- [x] PSMC Population Plot Analysis for multiple species.
 - [ ] Install batch for all required software tools.
 - [ ] GUI for Non-terminal users
 
 ## Requirements
 * **Languages**
- * Python 2.7 or Python 3+ : https://www.python.org/
- * Perl : https://www.perl.org/get.html
+  * Python 2.7 or Python 3+ : https://www.python.org/
+  * Perl : https://www.perl.org/get.html
  * **If on Windows**
    * Linux shell emulator : https://www.cygwin.com/
-    * GNU Packages : http://gnuwin32.sourceforge.net/
+   * GNU Packages : http://gnuwin32.sourceforge.net/
 * **Tools**
- * Bowtie2 : http://bowtie-bio.sourceforge.net/bowtie2/index.shtml
- * Bwa-mem : http://bio-bwa.sourceforge.net/
- * SAMtools : http://samtools.sourceforge.net/
- * VcfTools : https://vcftools.github.io/index.html
- * Feature Extract (gb2tab) : http://www.cbs.dtu.dk/services/FeatureExtract/download.php 
- * GATK : https://software.broadinstitute.org/gatk/
- * Picard Tools : https://broadinstitute.github.io/picard/
- * BBTools : https://sourceforge.net/projects/bbmap/
- * PrinSeq : http://prinseq.sourceforge.net/
+  * Bowtie2 : http://bowtie-bio.sourceforge.net/bowtie2/index.shtml
+  * Bwa-mem : http://bio-bwa.sourceforge.net/
+  * SAMtools : http://samtools.sourceforge.net/
+  * VcfTools : https://vcftools.github.io/index.html
+  * Feature Extract (gb2tab) : http://www.cbs.dtu.dk/services/FeatureExtract/download.php 
+  * GATK : https://software.broadinstitute.org/gatk/
+  * Picard Tools : https://broadinstitute.github.io/picard/
+  * BBTools : https://sourceforge.net/projects/bbmap/
+  * PrinSeq : http://prinseq.sourceforge.net/
 
 ## Authors
-- [Charles Sanfiorenzo Cruz]() - charles.sanfiorenzo@upr.edu
+- [Charles Sanfiorenzo Cruz]() - charles.sanfiorenzo@upr.edu | csanfior@mit.edu
 - [Jenelys Ruiz Ortiz]() - jenelys.ruiz@upr.edu
 
 
@@ -112,5 +111,5 @@ If you'd like to make your own changes ensure your PR is made against the ['dev'
 This program takes advantage of a lot of software tools developed by many academic institutions. Make sure to cite their use in accordance to their policies!
 
 ## Citation
-Sanfiorenzo C. J. & Ruiz J. (2016). MultiTool - A Bioinformatic Toolset [Computer Software]. University of Puerto Rico 
+Sanfiorenzo C. & Ruiz J. (2016). MultiTool - A Bioinformatic Toolset [Computer Software]. University of Puerto Rico 
 Rio Piedras. Retrieved from: https://github.com/CharlesSanfiorenzo/Bioinformatics.git
