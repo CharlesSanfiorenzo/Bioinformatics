@@ -124,6 +124,7 @@ Targeted Next-Generation Sequencing (tNGS) is considered a fast & cost-effective
 
 ## VIII. Mutational Load
 This feature assays the amount of possible synonymous and non-synonymous sites in a gene's canonical coding sequence, as well as the amount of synonymous and non-synonymous SNPs in the coding regions of raw sequencing runs (we use snpEff for this last bit). These values are used to calculate the polymorphic Ka/Ks ratio of the genome through the Nei-Gojobori method, which is described as follows:
+![](https://github.com/CharlesSanfiorenzo/Bioinformatics/blob/master/MultiTool/docs/images/NeiGojobori.png?raw=true)
 
 * Input: Filtered VCF, snpEff Library
 * Output: SNPStats.txt (SNP site and occurance info), pKa/Ks.txt (polymorphic Ka/Ks)
