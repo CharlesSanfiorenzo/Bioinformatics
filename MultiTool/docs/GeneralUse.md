@@ -134,4 +134,4 @@ This feature assays the amount of possible synonymous and non-synonymous sites i
 
 Note that the values for u and g can be found in the literature. However, while the model is capable of estimating a value for t per loci, the theoretical maximum value for t must be inferred by the user. MultiTool includes tools capable of analyzing the output of PSMC by showing the distribution of t's estimated by the model. 
 
-[[images/FigureTs.png]]
+[[/images/FigureTs.png]]
