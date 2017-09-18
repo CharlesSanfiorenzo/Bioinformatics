@@ -124,10 +124,13 @@ Targeted Next-Generation Sequencing (tNGS) is considered a fast & cost-effective
 
 ## VIII. Mutational Load
 This feature assays the amount of possible synonymous and non-synonymous sites in a gene's canonical coding sequence, as well as the amount of synonymous and non-synonymous SNPs in the coding regions of raw sequencing runs (we use snpEff for this last bit). These values are used to calculate the polymorphic Ka/Ks ratio of the genome through the Nei-Gojobori method, which is described as follows:
-![](https://github.com/CharlesSanfiorenzo/Bioinformatics/blob/master/MultiTool/docs/images/NeiGojobori.png?raw=true)
+![equation](https://github.com/CharlesSanfiorenzo/Bioinformatics/blob/master/MultiTool/docs/images/NeiGojobori.png?raw=true)
 
 * Input: Filtered VCF, snpEff Library
 * Output: SNPStats.txt (SNP site and occurance info), pKa/Ks.txt (polymorphic Ka/Ks)
+
+The output also includes a theoretical value of the average impact of SNPs across protein-coding regions of the genome derived from classifications in snpEff. The average is calculated in the following way:
+![equation](https://github.com/CharlesSanfiorenzo/Bioinformatics/blob/master/MultiTool/docs/images/MeanSNPImpact.png?raw=true)
 
 ## IX. PSMC
 [PSMC](https://github.com/lh3/psmc) is a software package capable of inferring population size history from diploid genomic sequences using the Pairwise Sequentially Markovian Coalescent (PSMC) model. This feature provides a working pipeline capable of running PSMC from multiple vcf files from different species, with 100 bootstraps per run. However, amongst the parameters needed for a correct population size inference, mutation rate(u), generation times (g), and a factor for the evolutionary distance to the most recent common ancestor (t) need to be changed for each species under study. If u, g, and t are different for a,b,c..z species, PSMC's default operations are not capable of scaling and comparing population histories for said species. This package gives users the option to input multiple n's, g's,and t's in accordance to the organisms being studied and compared - resulting in a plot containing traces of the population history pertinent to each species. In this example, a single mutation rate (u) is used for species with multiple generation times (g's).
