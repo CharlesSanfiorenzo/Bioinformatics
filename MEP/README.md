@@ -14,16 +14,20 @@
 - [Authors](#authors) 
 
 ## Installation
+MEP is entirely written in Python, meaning that all modules can be used once Python and all packages listed in the requirements are installed. 
 
 ## Tools
+Note: AutoAligner.sh can be run to perform automated TopHat alignments, while AutoExpression.sh will perform automated Cufflink expression analysis and parse resulting files into the required format for MEP. In a scenario where AutoExpression.sh is not able to find the Cufflinks installation path, one may perform the following GNU operations on the resulting .fpkm_ 
 
 ### Transcriptional Efficiency Estimator
+Calculates transcriptional efficiency by comparing FPKM or RPKM values reported for genes. 
 ```python TranscriptionEfficiency.py -T <FPKMTable> -f <fastafile> [optional: -R <regulation type (default:down)> ] > MotifsNoRef.fa```
  
 ### Translational Efficiency Estimator
 ```python TranslationEfficiency.py -T <FPKMTable> -f <fastafile> [optional: -r <retention value> -R <regulation type (default:down)> ] > MotifsNoRef.fa```
  
 ### MEP Database Creator
+After calculating Transcriptional and/or Translational Efficiency, running this script will create a database for MEP's plotting & SVM modules. The resulting file (MEP.db) will be a csv containing the following info: Identifier, Motif Sequence, AlignmentS core, and Transcriptional/Translational Efficiency (depending on the previous step).
 
 ```python DBCreator.py -f <fasta> -M <MEP.fpkm.csv> -N <NeedleResults>```
 
@@ -56,6 +60,7 @@
 - #### Multivariate Relationships
 ![](https://github.com/CharlesSanfiorenzo/Bioinformatics/blob/master/MEP/doc/images/MultiVariate.png?raw=true)
 - #### Single Feature Relationships
+![](https://github.com/CharlesSanfiorenzo/Bioinformatics/blob/master/MEP/doc/images/SingleFeature.png?raw=true)
 
 ### Effect Classifier
 
