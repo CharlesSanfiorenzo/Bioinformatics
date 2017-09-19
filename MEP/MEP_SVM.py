@@ -1,4 +1,4 @@
-######################MEP2 Support Vector Machine.##############################
+######################MEP Support Vector Machine.##############################
 ######If you have any questions, please contact the author of this script#######
 ######at csanfior@mit.edu ######################################################
 
@@ -32,31 +32,31 @@ def main(argv):
    try:
       opts, args = getopt.getopt(argv,"hd:M:v:n:@:",["randomizer","over-fit"])
    except getopt.GetoptError:
-      print 'Usage: MEP2.py -d <MEP2 database> -M <MEP2_NoRefGene.fpkm.csv> -v <validation set> [optional: -n <label number>]'
+      print 'Usage: MEP.py -d <MEP database> -M <MEP_NoRefGene.fpkm.csv> -v <validation set> [optional: -n <label number>]'
       print 'Note: Type \'-h\' for additional help'
       sys.exit(2)
    for opt, arg in opts:
       if len(sys.argv) == 1 :
-	print 'Usage: MEP2.py -d <MEP2 database> -M <MEP2_NoRefGene.fpkm.csv> -v <validation set> [optional: -n <label number>]'
+	print 'Usage: MEP.py -d <MEP database> -M <MEP_NoRefGene.fpkm.csv> -v <validation set> [optional: -n <label number>]'
       	print 'Note: Type \'-h\' for additional help'
       	sys.exit(2)
       elif opt == '-h':
-         print '''Usage: MEP2.py -d <MEP2 database> -M <MEP2_NoRefGene.fpkm.csv> -v <validation set> [optional: -n <label number>]
+         print '''Usage: MEP.py -d <MEP database> -M <MEP_NoRefGene.fpkm.csv> -v <validation set> [optional: -n <label number>]
 		  Example: TranslationalEfficiency.py -d MEP2.db -M MEP2_NoRefGene.fpkm.csv -n 40
                   Author: Charles Sanfiorenzo (2017)
 		  --------------------------------------------------------------------
-                  Running this script will run MEP2's Support Vector & Linear Regression models; the most
+                  Running this script will run MEP's Support Vector & Linear Regression models; the most
                   accurate model for each will be outputted and graphed, along with a table containing 
                   accuracy comparison between models.
 
                   -d | MEP2 database produced by DBCreator.py
                   -M | MEP2 FPKM Table w/o Reference Gene. It is used as a 'sanity' check. Produced by TranslationEfficiency.py
-                  -v | Validation (testing) data set (copy the format of MEP2.db, but add 'Label' as a column; see examples on GitHub). 
-                       If validation genes are within MEP2.db, supply this option with a list of corresponding Gene Symbols and an assigned label 
+                  -v | Validation (testing) data set (copy the format of MEP.db, but add 'Label' as a column; see examples on GitHub). 
+                       If validation genes are within MEP.db, supply this option with a list of corresponding Gene Symbols and an assigned label 
                        (1 for effect observed, -1 for no effect observed).
                   
                   Optional arguments:
-                  -n | number of genes to be used for training when running MEP2. Default: 40
+                  -n | number of genes to be used for training when running MEP. Default: 40
                        Example: for -n 40, 40 genes will be chosen for positive labels,
                        and 40 genes will be chosen for negative labels (a total of 80 genes 
                        will be used to train).
@@ -85,37 +85,37 @@ def main(argv):
       elif opt in ("-@"):
          threads = arg
       else :
-	 print 'Usage: MEP2.py -d <MEP2 database> -M <MEP2_NoRefGene.fpkm.csv> -v <validation set> [optional: -n <label number>]'
+	 print 'Usage: MEP2.py -d <MEP2 database> -M <MEP_NoRefGene.fpkm.csv> -v <validation set> [optional: -n <label number>]'
          print 'Note: Type \'-h\' for additional help'
 	 sys.exit(2)
    args = sys.argv[1:]
    if not args :
-	print 'Usage: MEP2.py -d <MEP2 database> -M <MEP2_NoRefGene.fpkm.csv> -v <validation set> [optional: -n <label number>]'
+	print 'Usage: MEP2.py -d <MEP2 database> -M <MEP_NoRefGene.fpkm.csv> -v <validation set> [optional: -n <label number>]'
         print 'Note: Type \'-h\' for additional help'
 	sys.exit()
    if len(required) <= 2 :
 	print 'Error: Missing argument.' 
-	print 'Usage: MEP2.py -d <MEP2 database> -M <MEP2_NoRefGene.fpkm.csv> -v <validation set> [optional: -n <label number>]'
+	print 'Usage: MEP2.py -d <MEP2 database> -M <MEP_NoRefGene.fpkm.csv> -v <validation set> [optional: -n <label number>]'
         print 'Note: Type \'-h\' for additional help'
 	sys.exit()
    if os.path.isfile(FPKMfile) == False :
 	print 'Error:',FPKMfile,'not found' 
-	print 'Usage: MEP2.py -d <MEP2 database> -M <MEP2_NoRefGene.fpkm.csv> -v <validation set> [optional: -n <label number>]'
+	print 'Usage: MEP2.py -d <MEP2 database> -M <MEP_NoRefGene.fpkm.csv> -v <validation set> [optional: -n <label number>]'
         print 'Note: Type \'-h\' for additional help'
 	sys.exit()
    if os.path.isfile(db) == False :
 	print 'Error:',db,'not found' 
-	print 'Usage: MEP2.py -d <MEP2 database> -M <MEP2_NoRefGene.fpkm.csv> -v <validation set> [optional: -n <label number>]'
+	print 'Usage: MEP2.py -d <MEP2 database> -M <MEP_NoRefGene.fpkm.csv> -v <validation set> [optional: -n <label number>]'
         print 'Note: Type \'-h\' for additional help'
 	sys.exit()
    if os.path.isfile(v) == False :
 	print 'Error:',v,'not found' 
-	print 'Usage: MEP2.py -d <MEP2 database> -M <MEP2_NoRefGene.fpkm.csv> -v <validation set> [optional: -n <label number>]'
+	print 'Usage: MEP2.py -d <MEP2 database> -M <MEP_NoRefGene.fpkm.csv> -v <validation set> [optional: -n <label number>]'
         print 'Note: Type \'-h\' for additional help'
 	sys.exit()
    if n.is_integer() == False :
 	print 'Error:',n,'is not an interger' 
-	print 'Usage: MEP2.py -d <MEP2 database> -M <MEP2_NoRefGene.fpkm.csv> -v <validation set> [optional: -n <label number>]'
+	print 'Usage: MEP2.py -d <MEP2 database> -M <MEP_NoRefGene.fpkm.csv> -v <validation set> [optional: -n <label number>]'
         print 'Note: Type \'-h\' for additional help'
 	sys.exit()
    if threads.is_integer() == False :
