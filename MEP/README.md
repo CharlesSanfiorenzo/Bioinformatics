@@ -17,22 +17,50 @@
 
 ## Tools
 
+### Transcriptional Efficiency Estimator
+```python TranscriptionEfficiency.py -T <FPKMTable> -f <fastafile> [optional: -R <regulation type (default:down)> ] > MotifsNoRef.fa```
+ 
+### Translational Efficiency Estimator
+```python TranslationEfficiency.py -T <FPKMTable> -f <fastafile> [optional: -r <retention value> -R <regulation type (default:down)> ] > MotifsNoRef.fa```
+ 
 ### MEP Database Creator
 
-- #### Position Dependant Alignment (PDA)
+```python DBCreator.py -f <fasta> -M <MEP.fpkm.csv> -N <NeedleResults>```
 
-### Transcriptional Efficiency Estimator
-
-### Translational Efficiency Estimator
-
+- #### Position Dependent Alignment (PDA)
+  If the user is interested in the identity of bases in specific nucleotide positions across the motifs found in the multifasta file, a position dependent alignment score can be provided as an alternative to Needle scores in MEP's DBCreator as follows:
+  
+  ```python PDA.py -m <PWM Matrix> -f <fasta> > AlignmentScores.txt```
+  
+  ```python DBCreator.py -f <fasta> -M <MEP.fpkm.csv> -N AlignmentScores.txt```
+  
+  Note that the PWM has to be created by the user. Here is an example of a PWM for an 11 nucleotide motif:
+  
+                       0, 1, 0, 0
+                       0, 0, 0, 1
+                       0, 0, 0, 1
+                       0, 0, 0, 1
+                       0, 1, 0, 0
+                       0, 1, 0, 0
+                       0, 0, 0, 1
+                       0, 0, 0, 1
+                       0, 0, 0, 1
+                       0, 1, 0, 0
+                       0, 0, 1, 0
+                       
+  Column order represents: A, C, G, T. The PWM should be saved in a text file and provided to PDA.py.
+  
 ### Relationship Plots
   MEP is capable of producing plots for the following scenarios:
 
 - #### Multivariate Relationships
-
+![](https://github.com/CharlesSanfiorenzo/Bioinformatics/blob/master/MEP/doc/images/MultiVariate.png?raw=true)
 - #### Single Feature Relationships
 
 ### Effect Classifier
+
+
+Please read the documentation for all available features and sub-commands, as well as in-depth guidance.
 
 ## Requirements
 * **Languages**
