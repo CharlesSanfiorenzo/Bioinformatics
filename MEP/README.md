@@ -2,6 +2,8 @@
 
 ## Concept
 
+However, in order to calculate **translational** efficiency one must rule out transcriptional regulation as a cause for reported change in translation. Commonly studies use the following formula to define translational regulation: . Because Ribosome profiling and RNA-Seq data sets are different in nature and yield different results when properly quantified, the aforementioned formula thus compares two incomparable values - it is comparing apples and oranges. To bypass this issue, MEP uses a simple equation that implements a retention value (r) to rule out transcriptional regulation in samples when quantifying translational efficiency:.
+
 ## Table of Contents
 - [Installation](#installation)
 - [Tools](#tools)
@@ -17,17 +19,22 @@
 MEP is entirely written in Python, meaning that all modules can be used once Python and all packages listed in the requirements are installed. 
 
 ## Tools
-Note: AutoAligner.sh can be run to perform automated TopHat alignments, while AutoExpression.sh will perform automated Cufflink expression analysis and parse resulting files into the required format for MEP. In a scenario where AutoExpression.sh is not able to find the Cufflinks installation path, one may perform the following GNU operations on the resulting .fpkm_ 
+>Note: AutoAligner.sh can be run to perform automated TopHat alignments, while AutoExpression.sh will perform automated >Cufflinks expression analysis and parse resulting files into the required format for MEP. In a scenario where >AutoExpression.sh is not able to find the Cufflinks installation path, one may perform the following GNU operations on the >resulting 'genes.fpkm_tracking' file produced by Cufflinks:
+>
+>```awk '{ print $1, $10, $14, $18, $22}' genes.fpkm_tracking | awk '{if (NR!=1) {print}}' > GenesFPKM.txt```
 
 ### Transcriptional Efficiency Estimator
-Calculates transcriptional efficiency by comparing FPKM or RPKM values reported for genes. 
+Calculates transcriptional efficiency by comparing FPKM or RPKM values reported for genes. For transcriptional efficiency to be calculated, two RNA-Seq data sets are required in the Cufflinks expression analysis.
+
 ```python TranscriptionEfficiency.py -T <FPKMTable> -f <fastafile> [optional: -R <regulation type (default:down)> ] > MotifsNoRef.fa```
  
 ### Translational Efficiency Estimator
+Calculates translational efficiency by comparing FPKM or RPKM values reported for genes. For translational efficiency to be calculated, MEP requires that the user includes two Ribosome profiling data sets and two RNA-Seq data sets in the Cufflinks expression analysis. The retention value (r) is defined to be 0.30 by default.
+
 ```python TranslationEfficiency.py -T <FPKMTable> -f <fastafile> [optional: -r <retention value> -R <regulation type (default:down)> ] > MotifsNoRef.fa```
  
 ### MEP Database Creator
-After calculating Transcriptional and/or Translational Efficiency, running this script will create a database for MEP's plotting & SVM modules. The resulting file (MEP.db) will be a csv containing the following info: Identifier, Motif Sequence, AlignmentS core, and Transcriptional/Translational Efficiency (depending on the previous step).
+After calculating Transcriptional and/or Translational Efficiency, running this script will create a database for MEP's plotting & SVM modules. The resulting file (MEP.db) will be a csv containing the following info: Identifier, Motif Sequence, AlignmentS core, and Transcriptional/Translational Efficiency. More features can be added to MEP's data base, see documentation for more details.
 
 ```python DBCreator.py -f <fasta> -M <MEP.fpkm.csv> -N <NeedleResults>```
 
