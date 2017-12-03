@@ -36,7 +36,8 @@ Calculates translational efficiency by comparing FPKM or RPKM values reported fo
   <img src="https://github.com/CharlesSanfiorenzo/Bioinformatics/blob/master/MEP/doc/images/TransEff.png?raw=true">
 </p>
 
-The retention value (r) is defined to be 0.30 by default.
+The retention value (r) is defined to be 0.30 by default. 
+-R dictates the type of regulation that is being studied (i.e. up or down). The formulas above reflect downregulation. For up regulation studies, the efficiency ratio is calculated using the Experimental/Treated data sets as the denominator.
 
 ```python TranslationEfficiency.py -T <FPKMTable> -f <fastafile> [optional: -r <retention value> -R <regulation type (default:down)> ] > MotifsNoRef.fa```
  
@@ -52,7 +53,8 @@ After calculating Transcriptional and/or Translational Efficiency, running this 
   
   ```python DBCreator.py -f <fasta> -M <MEP.fpkm.csv> -N AlignmentScores.txt```
   
-  Note that the PWM has to be created by the user. Here is an example of a PWM for an 11 nucleotide motif:
+  Note that the PWM has to be created by the user. Here is an example of a PWM for the following 11 nucleotide motif:
+  **5'-CTTTCCTTTCG-3'**
   
                        0, 1, 0, 0
                        0, 0, 0, 1
@@ -73,6 +75,7 @@ After calculating Transcriptional and/or Translational Efficiency, running this 
 
 - #### Multivariate Relationships
 ![](https://github.com/CharlesSanfiorenzo/Bioinformatics/blob/master/MEP/doc/images/MultiVariate.png?raw=true)
+These plots are produced from all the features stored in MEP's database files. Said features can be generated automatically by MEP (like Transcriptional/Translational Efficiency and Alignment Score), and others need to be added manually by the user (```DBCreator.py ``` has an option for this). I have been working on an automatic, wide-scale screening algorithm in order to autonomously provide a variety of metrics that have been proven in the literature to influence transcriptional/translational efficiency. Feel free to email [me](#authors) for updates.
 - #### Single Feature Relationships
 ![](https://github.com/CharlesSanfiorenzo/Bioinformatics/blob/master/MEP/doc/images/RiboBind.png?raw=true)
 
