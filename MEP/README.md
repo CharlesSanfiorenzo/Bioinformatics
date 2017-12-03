@@ -74,7 +74,7 @@ After calculating Transcriptional and/or Translational Efficiency, running this 
 - #### Multivariate Relationships
 ![](https://github.com/CharlesSanfiorenzo/Bioinformatics/blob/master/MEP/doc/images/MultiVariate.png?raw=true)
 - #### Single Feature Relationships
-![](https://github.com/CharlesSanfiorenzo/Bioinformatics/blob/master/MEP/doc/images/SingleFeature.png?raw=true)
+![](https://github.com/CharlesSanfiorenzo/Bioinformatics/blob/master/MEP/doc/images/RiboBind.png?raw=true)
 
 ### Effect Classifier
 
