@@ -6,6 +6,7 @@ This repository contains several projects that have been funded by Puerto Rico's
 
 ## Motif Effect Predictor (MEP)
 MEP is a set of computational tools capable of discovering and predicting relationships between several sequence-related features of DNA/RNA motifs, and transcriptional/translational efficiency. MEP currently evaluates features such as alignment score (when the motif under study is being compared to an 'ideal' motif), unfolding energy in areas surrounding the motif, statistics of the motif's composition of bases, and the motif's distance to other genomic or genic regions. All of the aforementioned metrics are compared to transcriptional and/or translational efficiency values derived from RNA-Seq and Ribosome Profiling data sets.
+![](https://github.com/CharlesSanfiorenzo/Bioinformatics/blob/master/MEP/doc/images/RiboBind.png?raw=true)
 
 ## MultiTool
 MultiTool is an interactive multi-purpose bioinformatic tool that enables researchers with no background in bioinformatics to complete common tasks in the ever-growing field of '-omics'.
