@@ -1,16 +1,33 @@
 # Help Manual
 Note: Try to run this script in a screen.
 ## I. Gene Extraction
-This feature makes use of NCBI's Genbank annotated format files (GBKs) to produce a multifasta file containing all ORF's belonging to protein coding genes. First collect genbank files belonging to an organism's chromosomes (if assigned). Run MultiTool.sh w/ Extract option; this will output a file containing all ORF's for all protein coding genes. You can choose to extract all ORFs or to only keep the longest ORF per gene (canonical sequences).
+This feature makes use of NCBI's Genbank annotated format files (GBKs) to produce a multifasta file containing all Open Reading Frames (ORFs) belonging to protein coding genes. First collect genbank files belonging to an organism's chromosomes (if assigned). Run MultiTool.sh w/ Extract option - this will output a file containing all ORFs for all protein coding genes. You can then choose to extract all ORFs or to only keep the longest ORF per gene (canonical sequences).
 
 ## II. Gene Copy Number Analysis
-Run this script w/ Extract option, but keep only canonical sequences. Parse the output to extract desired genes using 'Find Gene'. Then, map reads to individual genes, and then to all ORF's using GeneCopies option. You should end up with a coverage result for the individual gene in question (Ref: GeneName.fa), and for all of the ORFs. Divide the coverage value belonging to each individual gene between the coverage value for all ORFs (i.e. gene/AllORFs). Since most genes have a single copy, this result should be an estimate value for the copy number of that gene.
+The majority of genes only possess a single functional copy within the genome of most organisms. We can take advantage of this fact to estimate the number of copies for a specific gene by calculating Whole-Genome Sequence (WGS) coverage for said gene relative to the average WGS coverage for all annotated genes across the genome. To do this, you would need to have sequence files containing the longest ORF per annotated gene/transcript (i.e. their canonical sequence, which contains all possible exons and introns), and fastq-formatted sequencing reads belonging to WGS projects. MultiTool can provide the user with canonical gene sequences given a genbank annotation file by using the Gene Extraction option (Note: choose 'Longest Transcript' when prompted).
+
+### General Procedure
+
+- **A.** Run MultiTool.sh and choose 'Extract' option. Choose 'Longest Transcript' when prompted. **Output: All canonical ORFs in fasta format.**
+- **B.** Run MultiTool.sh and choose 'Find Gene' option. Input the gene symbol of the gene that's going to be quantified. **Output: Gene under study in fasta format.** 
+- **C.** Run MultiTool.sh and choose 'Copy Number' option. If the user needs to quantify multiple genes at once, or has yet to quantify the average coverage for all canonical ORFs, MultiTool.sh has an option for this (choose 'MultipleAlignments' when prompted, else just choose 'Single Alignment'). The reference files used should contain the gene sequence under study in fasta format (produced in Step B), and all canonical ORFs in fasta format (produced in Step A). **Output: Copy Number of gene(s) selected.**
+
+### What is MultiTool doing in order to assess gene copy number?
+MultiTool is simply using Bowtie2 & SAMtools in order to perform a series of pre-processing, alignment, and post-processing operations. The most important aspects of MultiTool's Gene Copy Number functionality are the alignment and post-processing steps:
+- Alignment: MultiTool uses a modified, stringent version of Bowtie2's standard commandline.
+bowtie2 -x $Build -D 0 -R 0 -N 0 --no-1mm-upfront --no-mixed --no-discordant $Reads --threads 16 | samtools view -bS - > $Build.bam
+For every read segment, no mismatches or mixed-segment alignments are allowed. Segments that only align partially to a region are also discarded, and no re-seeding is performed. This allows MultiTool to only quantify reads that 
+- Post-Processing: To take care of over-sampling or "over-representation" of the genome, MultiTool uses PicardTools to target duplicate alignments (i.e. alignments that correspond to multiple reads mapping to the same locations) and only keep the one with the highest score.
+java -XX:ParallelGCThreads=16 -jar picard.jar MarkDuplicates INPUT=BuildName.sorted.bam OUTPUT=NoDup.bam METRICS_FILE=metrics.txt REMOVE_DUPLICATES=true VALIDATION_STRINGENCY=LENIENT
+
+### Pitfalls
+While this approach works for most genes, genes that have undergone retro-insertion events in the genome (i.e. genes that possess retro-copies) tend to cause MultiTool to integrate many false positives into its analysis. Retro-copies have an increasingly high number of frameshift mutations, potentially making the product of the gene under study non-functional in respect to the cellular functionality of its original copy.
 
 ## III. Find Gene
 This feature extracts a specific gene header and sequence from a mutifasta file. Run this script w/ Extract option. When prompted, use the fasta output from the Extract option as input; specify the gene of interest. Inclusive mode will keep all genes with similar names, and exclusive mode will keep the gene named with the regular expression given.
 
 ## IV. Read Quality Test for WGS
-Using fastq files & a reference fasta, this option will output alignment rate, average coverage, and Ts/Tv ratio for the selected organism. 
+Using fastq files & a reference fasta, this option will output alignment rate, average coverage, and Transition/Transversion ratio (Ts/Tv) for the selected organism. 
 
 Note: Only FastQC screening is needed to test for quality for tNGS methods, as multiple sequencing runs over the same target increase validity of base calls.
 
@@ -133,8 +150,8 @@ The output also includes a theoretical value of the average impact of SNPs acros
 ![equation](https://github.com/CharlesSanfiorenzo/Bioinformatics/blob/master/MultiTool/docs/images/MeanSNPImpact.png?raw=true)
 
 ## IX. PSMC
-[PSMC](https://github.com/lh3/psmc) is a software package capable of inferring population size history from diploid genomic sequences using the Pairwise Sequentially Markovian Coalescent (PSMC) model. This feature provides a working pipeline capable of running PSMC from multiple vcf files from different species, with 100 bootstraps per run. However, amongst the parameters needed for a correct population size inference, mutation rate(u), generation times (g), and a factor for the evolutionary distance to the most recent common ancestor (t) need to be changed for each species under study. If u, g, and t are different for a,b,c..z species, PSMC's default operations are not capable of scaling and comparing population histories for said species. This package gives users the option to input multiple n's, g's,and t's in accordance to the organisms being studied and compared - resulting in a plot containing traces of the population history pertinent to each species. In this example, a single mutation rate (u) is used for species with multiple generation times (g's).
-
+[PSMC](https://github.com/lh3/psmc) is a software package capable of inferring population size history from diploid genomic sequences using the Pairwise Sequentially Markovian Coalescent (PSMC) model. This feature provides a working pipeline capable of running PSMC from multiple vcf files from different species. However, amongst the parameters needed for a correct population size inference, mutation rate(u), generation times (g), and a factor for the evolutionary distance to the most recent common ancestor (t) need to be changed for each species under study. If u, g, and t are different for a,b,c..z species, PSMC's default operations are not capable of scaling and comparing population histories for said species. This package gives users the option to input multiple n's, g's,and t's in accordance to the organisms being studied and compared - resulting in a plot containing traces of the population history pertinent to each species. In this example, a single mutation rate (u) is used for simulated data representing species with multiple generation times (g's, found next to species name).
+![](https://github.com/CharlesSanfiorenzo/Bioinformatics/blob/master/MultiTool/docs/images/psmcExample.png?raw=true)
 
 Note that the values for u and g can be found in the literature. However, while the model is capable of estimating a value for t per loci, the theoretical maximum value for t must be inferred by the user. MultiTool includes tools capable of analyzing the output of PSMC by showing the distribution of t's estimated by the model. 
 
