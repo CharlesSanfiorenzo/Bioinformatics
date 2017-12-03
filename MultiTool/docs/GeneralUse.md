@@ -8,20 +8,26 @@ The majority of genes only possess a single functional copy within the genome of
 
 ### General Procedure
 
-- **A.** Run MultiTool.sh and choose 'Extract' option. Choose 'Longest Transcript' when prompted. **Output: All canonical ORFs in fasta format.**
-- **B.** Run MultiTool.sh and choose 'Find Gene' option. Input the gene symbol of the gene that's going to be quantified. **Output: Gene under study in fasta format.** 
-- **C.** Run MultiTool.sh and choose 'Copy Number' option. If the user needs to quantify multiple genes at once, or has yet to quantify the average coverage for all canonical ORFs, MultiTool.sh has an option for this (choose 'MultipleAlignments' when prompted, else just choose 'Single Alignment'). The reference files used should contain the gene sequence under study in fasta format (produced in Step B), and all canonical ORFs in fasta format (produced in Step A). **Output: Copy Number of gene(s) selected.**
+- **A.** Run MultiTool.sh and choose 'Extract' option. Choose 'Longest Transcript' when prompted. 
+    * **Output:** All canonical ORFs in fasta format.
+- **B.** Run MultiTool.sh and choose 'Find Gene' option. Input the gene symbol of the gene that's going to be quantified. 
+    * **Output:** Gene under study in fasta format. 
+- **C.** Run MultiTool.sh and choose 'Copy Number' option. If the user needs to quantify multiple genes at once, or has yet to quantify the average coverage for all canonical ORFs, MultiTool.sh has an option for this (choose 'MultipleAlignments' when prompted, else just choose 'Single Alignment'). The reference files used should contain the gene sequence under study in fasta format (produced in Step B), and all canonical ORFs in fasta format (produced in Step A). 
+    * **Output:** Copy Number of gene(s) selected.
 
 ### What is MultiTool doing in order to assess gene copy number?
 MultiTool is simply using Bowtie2 & SAMtools in order to perform a series of pre-processing, alignment, and post-processing operations. The most important aspects of MultiTool's Gene Copy Number functionality are the alignment and post-processing steps:
 - Alignment: MultiTool uses a modified, stringent version of Bowtie2's standard commandline.
-bowtie2 -x $Build -D 0 -R 0 -N 0 --no-1mm-upfront --no-mixed --no-discordant $Reads --threads 16 | samtools view -bS - > $Build.bam
+
+```bowtie2 -x $Build -D 0 -R 0 -N 0 --no-1mm-upfront --no-mixed --no-discordant $Reads --threads 16 | samtools view -bS - > $Build.bam```
+
 For every read segment, no mismatches or mixed-segment alignments are allowed. Segments that only align partially to a region are also discarded, and no re-seeding is performed. This allows MultiTool to only quantify reads that 
 - Post-Processing: To take care of over-sampling or "over-representation" of the genome, MultiTool uses PicardTools to target duplicate alignments (i.e. alignments that correspond to multiple reads mapping to the same locations) and only keep the one with the highest score.
-java -XX:ParallelGCThreads=16 -jar picard.jar MarkDuplicates INPUT=BuildName.sorted.bam OUTPUT=NoDup.bam METRICS_FILE=metrics.txt REMOVE_DUPLICATES=true VALIDATION_STRINGENCY=LENIENT
+
+```java -XX:ParallelGCThreads=16 -jar picard.jar MarkDuplicates INPUT=BuildName.sorted.bam OUTPUT=NoDup.bam METRICS_FILE=metrics.txt REMOVE_DUPLICATES=true VALIDATION_STRINGENCY=LENIENT```
 
 ### Pitfalls
-While this approach works for most genes, genes that have undergone retro-insertion events in the genome (i.e. genes that possess retro-copies) tend to cause MultiTool to integrate many false positives into its analysis. Retro-copies have an increasingly high number of frameshift mutations, potentially making the product of the gene under study non-functional in respect to the cellular functionality of its original copy.
+While this approach works for most genes, genes that have undergone retro-insertion events in the genome (i.e. genes that possess retro-copies) tend to cause MultiTool to integrate many false positives into its analysis. Retro-copies have an increasingly high number of frameshift mutations, potentially making the product of the retro-gene in question non-functional in respect to the cellular functionality of its original copy.
 
 ## III. Find Gene
 This feature extracts a specific gene header and sequence from a mutifasta file. Run this script w/ Extract option. When prompted, use the fasta output from the Extract option as input; specify the gene of interest. Inclusive mode will keep all genes with similar names, and exclusive mode will keep the gene named with the regular expression given.
