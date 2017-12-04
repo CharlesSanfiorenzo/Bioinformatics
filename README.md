@@ -22,6 +22,9 @@ The user can navigate through a series of curated options without the need of co
 
 ## Optimal ORF Finder (OOF)
 How many nested Open Reading Frames (ORFs) can you find in a given genome, contig, chromosome, or gene? Run OOF to find out! Want to translate all of these nested ORFs and study their amino acid sequences? No problem, OOF has you covered! Need to identify the longest ORF within a set of nested ORFs? Say no more, OOF is the answer for you. 
+<p align="center">
+    <img width="550" alt="portfolio_view" src="https://github.com/CharlesSanfiorenzo/Bioinformatics/blob/master/OOF/doc/OOF.png">
+</p>
     
 ## Thermodynamic Promoter Activity Predictor (TPAP) 
 TPAP is a DNA-protein binding prediction model for RNA Polymerase-promoter association that takes into consideration the thermodynamic principles behind TF-promoter binding events. It uses a supervised, binary Steiner tree model to predict changes in promoter activity when TF binding regions of a promoter are mutated or completely inhibited. 
