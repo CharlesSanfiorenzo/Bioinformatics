@@ -2,13 +2,16 @@
 
 ## What does OOF do?
 OOF takes in a fasta file containing one or more sequences and identifies all nested Open Reading Frames (ORFs) found within each sequence.
+<p align="center">
+    <img width="550" alt="portfolio_view" src="https://github.com/CharlesSanfiorenzo/Bioinformatics/blob/master/OOF/doc/OOF.png">
+</p>
 
 ## Why was OOF created?
 
 ### Gene splicing
 Genes often undergo gene splicing, a post-transcriptional modification that permits a single gene to code for multiple proteins. Gene splicing events occur through differential inclusion or exclusion of regions of pre-mRNA, producing protein isoforms that are often structurally and functionally distinct. But what about the stuff that gets spliced out? When splicing gets carried out in some genes, nested ORFs become available for translation - potentially producing short peptide products with unknown functions!
 
-#### RNA cleavage
+### RNA cleavage
 Much like splicing, RNA cleavage in the cytosol can lead to new, accessible ORFs. It is important to note, however, that the fragments possessing the new ORF(s) won't be capped. 
 
 ## Table of Contents
