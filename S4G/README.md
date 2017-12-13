@@ -1,7 +1,7 @@
 # Statistics for Genomes (S4G)
 
 ## What does S4G do?
-S4G was a module originally part of MultiTool[] that produced simple statistics for fully annotated genomes. Given the common usage of these metrics in genome-wide studies, S4G was repurposed into a fully functional, stand-allone shell script. Currently, S4G calculates **genome size**, **total intergenic length**, **average intron size**, **total intron length**, **count of intron-containing genes**, **intron count**, **CpG dinucleotide count**, and **GC Content**. 
+S4G was a module originally part of ![MultiTool](https://github.com/CharlesSanfiorenzo/Bioinformatics/tree/master/MultiTool) that produced simple statistics for fully annotated genomes. Given the common usage of these metrics in genome-wide studies, S4G was repurposed into a fully functional, stand-allone shell script. Currently, S4G calculates **genome size**, **total intergenic length**, **average intron size**, **total intron length**, **count of intron-containing genes**, **intron count**, **CpG dinucleotide count**, and **GC Content**. 
 
     Total genes with introns: 55553
     Total introns: 62848
