@@ -25,7 +25,23 @@ How many nested Open Reading Frames (ORFs) can you find in a given genome, conti
 <p align="center">
     <img width="550" alt="portfolio_view" src="https://github.com/CharlesSanfiorenzo/Bioinformatics/blob/master/OOF/doc/OOF.png">
 </p>
+
+## Statistics for Genomes (S4G)
+S4G is a hybrid shell/python module that calculates **genome size**, **total intergenic length**, **average intron size**, **total intron length**, **count of intron-containing genes**, **intron count**, **CpG dinucleotide count**, and **GC Content** of fully annotated genomes.
     
+    $ ./S4G.sh genome.fa genome.gbff genome.gff
+    Total genes with introns: 55553
+    Total introns: 62848
+    Total intron length: 330523
+    Average intron length: 5259.00902962
+    Intergenic length: 91200324
+    Genome size: 2906061972
+    Intergenic/Genome Ratio: 0.0314
+    CpG sites: 20052674
+    GC Content: 24%
+    
+S4G also produces bed annotation files that contain intron positions per gene (which are not annotated in most genome annotation files found online).
+
 ## Thermodynamic Promoter Activity Predictor (TPAP) 
 TPAP is a DNA-protein binding prediction model for RNA Polymerase-promoter association that takes into consideration the thermodynamic principles behind TF-promoter binding events. It uses a supervised, binary Steiner tree model to predict changes in promoter activity when TF binding regions of a promoter are mutated or completely inhibited. 
 
