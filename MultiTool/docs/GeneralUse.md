@@ -21,7 +21,7 @@ MultiTool is simply using Bowtie2 & SAMtools in order to perform a series of pre
 
 ```bowtie2 -x $Build -D 0 -R 0 -N 0 --no-1mm-upfront --no-mixed --no-discordant $Reads --threads 16 | samtools view -bS - > $Build.bam```
 
-For every read segment, no mismatches or mixed-segment alignments are allowed. Segments that only align partially to a region are also discarded, and no re-seeding is performed. This allows MultiTool to only quantify reads that 
+For every read segment, no mismatches or mixed-segment alignments are allowed. Segments that only align partially to a region are also discarded, and no re-seeding is performed. This allows MultiTool to only quantify reads that fully align to a particular region.
 - Post-Processing: To take care of over-sampling or "over-representation" of the genome, MultiTool uses PicardTools to target duplicate alignments (i.e. alignments that correspond to multiple reads mapping to the same locations) and only keep the one with the highest score.
 
 ```java -XX:ParallelGCThreads=16 -jar picard.jar MarkDuplicates INPUT=BuildName.sorted.bam OUTPUT=NoDup.bam METRICS_FILE=metrics.txt REMOVE_DUPLICATES=true VALIDATION_STRINGENCY=LENIENT```
