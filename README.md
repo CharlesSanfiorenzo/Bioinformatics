@@ -46,7 +46,7 @@ S4G also produces bed annotation files that contain intron positions per gene (w
 TPAP is a DNA-protein binding prediction model for RNA Polymerase-promoter association that takes into consideration the thermodynamic principles behind TF-promoter binding events. It uses a supervised, binary Steiner tree model to predict changes in promoter activity when TF binding regions of a promoter are mutated or completely inhibited. 
 
 ## Main Author
-- [Charles Sanfiorenzo Cruz](https://github.com/CharlesSanfiorenzo) - charles.sanfiorenzo@upr.edu | csanfior@mit.edu
+- [Charles Sanfiorenzo](https://github.com/CharlesSanfiorenzo) - csanfior@caltech.edu | csanfior@mit.edu | charles.sanfiorenzo@upr.edu
 
 
 ## Contributors
